@@ -1,267 +1,104 @@
-
-# -WineLedgerthe tech stack
-Backend (Python, Ubuntu):
-- Language: Python 3.10+
-- Framework: FastAPI
-- Server: Uvicorn
-- Data: SQLite (or JSON files for v1)
-- Libs:
-- pandas, numpy (simulation)
-- hashlib, dataclasses (blockchain)
-- websockets or FastAPI’s WebSocket support
-Frontend (Web‑based):
-- Language: JavaScript (ES6+)
-- Bundler/dev server: Vite (simple, fast)
-- Generative art: p5.js (2D, approachable) or Three.js (3D/WebGL)
-- UI: HTML/CSS (optionally Tailwind or vanilla)
-Dev/Infra:
-- Git + GitHub
-- Ubuntu (local dev)
-- Node.js + npm
-- PyCharm (backend), WebStorm or VS Code (frontend)
-
-2. Project folder structure
-wineledger/
-│
-├── backend/
-│   ├── app/
-│   │   ├── main.py              # FastAPI entrypoint
-│   │   ├── models.py            # Block, Event dataclasses
-│   │   ├── blockchain.py        # Blockchain logic
-│   │   ├── simulator.py         # Supply chain simulator
-│   │   ├── mapping.py           # Event → visual params
-│   │   ├── schemas.py           # Pydantic models
-│   │   └── websocket.py         # WebSocket endpoints
-│   ├── tests/
-│   │   └── test_blockchain.py
-│   └── requirements.txt
-│
-├── frontend/
-│   ├── index.html
-│   ├── src/
-│   │   ├── main.js              # entry
-│   │   ├── renderer.js          # p5.js / Three.js visuals
-│   │   ├── websocketClient.js   # connects to backend
-│   │   ├── ui.js                # ledger/timeline UI
-│   │   └── styles.css
-│   └── package.json
-│
-├── docs/
-│   ├── architecture-diagram.md
-│   └── notes.md
-│
-├── .gitignore
-└── README.md
-
-
-
-3. README introduction (draft)
 # WineLedger
 
-**WineLedger** is a blockchain‑inspired, web‑based digital twin of the wine supply chain that transforms every step of a bottle’s journey—from vineyard to glass—into living generative art.
+**WineLedger** is a blockchain-inspired, web-based digital twin of the wine supply chain that turns each step of a bottle’s journey—from vineyard to glass—into generative visuals.
 
-The system simulates a realistic wine supply chain, records each event (harvest, fermentation, barrel aging, bottling, transport, retail) on a lightweight blockchain ledger, and streams those events to a browser‑based visual engine. Each event becomes a visual gesture: a burst of particles, a shift in color, a change in motion. The result is an interactive experience where supply chain transparency, sustainability, and “health” are not just numbers, but evolving visuals.
+The system simulates a realistic wine supply chain, records each event (harvest, fermentation, barrel aging, bottling, transport, retail) on a lightweight blockchain ledger, enriches events with geography metadata (routing hints, region codes, and NDR-style geometry references), and streams mapped payloads to a browser-based renderer. The FastAPI layer stays thin: orchestration, REST, WebSockets, and a pluggable geo cache; heavier batch work and large datasets can move to NRP/NDR as you scale.
 
-Built at the intersection of **blockchain**, **supply chain modeling**, **creative coding**, and **wine country culture**, WineLedger is both an educational tool and an artistic exploration of how data can tell stories.
+## Repository layout
 
-
-You can expand later with Features / Architecture / Getting Started.
+```
+WineLedger/
+├── app/
+│   ├── __init__.py
+│   ├── main.py              # FastAPI entrypoint, REST routes
+│   ├── models.py            # Block, SupplyChainEvent dataclasses
+│   ├── schemas.py           # Pydantic models (REST + WebSocket JSON)
+│   ├── blockchain.py        # Chain logic
+│   ├── simulator.py       # Synthetic supply chain events
+│   ├── mapping.py           # Event → visual parameters
+│   ├── geo_enrichment.py    # Geo adapter + cache + NDR-ready interface
+│   └── websocket.py         # WebSocket `/ws` + broadcast helpers
+├── tests/
+│   ├── test_blockchain.py
+│   ├── test_api.py
+│   └── test_geo.py
+├── frontend/
+│   ├── index.html
+│   ├── vite.config.js
+│   ├── package.json
+│   └── src/
+│       ├── main.js
+│       ├── renderer.js      # p5.js visuals
+│       ├── websocketClient.js
+│       ├── ui.js
+│       └── styles.css
+├── data/                    # Local SQLite geo cache (gitignored)
+├── requirements.txt
+├── pytest.ini
+└── README.md
+```
 
-4. Architecture diagram (text version for docs)
-                 ┌──────────────────────────────┐
-                 │   Supply Chain Simulator     │
-                 │ (vineyard → bottle → retail) │
-                 └───────────────┬──────────────┘
-                                 │ events
-                                 ▼
-                 ┌──────────────────────────────┐
-                 │       Blockchain Engine      │
-                 │ (blocks, hashes, validation) │
-                 └───────────────┬──────────────┘
-                                 │ blocks
-                                 ▼
-                 ┌──────────────────────────────┐
-                 │    Visual Mapping Layer      │
-                 │ (event → visual parameters)  │
-                 └───────────────┬──────────────┘
-                                 │ JSON over WebSocket
-                                 ▼
-        ┌────────────────────────────────────────────────┐
-        │                  Frontend (Web)                │
-        │  ┌──────────────────────────────────────────┐  │
-        │  │        Generative Art Renderer           │  │
-        │  │   (p5.js / Three.js, 60 FPS visuals)     │  │
-        │  └──────────────────────────────────────────┘  │
-        │  ┌──────────────────────────────────────────┐  │
-        │  │        UI Layer (Ledger + Timeline)      │  │
-        │  └──────────────────────────────────────────┘  │
-        └────────────────────────────────────────────────┘
+Older docs that referred to `backend/app/` described the same code; the live tree is **`app/`** at the repo root.
 
+## CENIC AIR, NRP, and NDR (data tier)
 
+| Layer | Role here |
+|--------|-----------|
+| **CENIC / CENIC AIR** | High-capacity research and education connectivity in California—well suited to **WebSocket streaming**, **map tile traffic**, and moving larger artifacts without relying only on the public internet. |
+| **NRP (National Research Platform)** | Shared **compute** (CPUs/GPUs, clusters, notebooks) for batch jobs you do not want on a laptop: batch geocoding, route precomputation, scheduled cache refresh, or heavier ML later. |
+| **NDR (national / durable data tier)** | **Durable, shareable data plane**: versioned reference geodata, cached third-party API responses, **ledger snapshots**, and large static assets. `GeoCacheBackend` is implemented locally first (SQLite); the same protocol can be backed by object storage or an institutional bucket when you attach NDR. |
 
-5. Phase 1 backend starter code (simulator + blockchain skeleton)
-backend/app/models.py
-from dataclasses import dataclass
-from typing import Dict, Any
-from datetime import datetime
+## Deployment phases
 
-@dataclass
-class SupplyChainEvent:
-    event_id: str
-    event_type: str
-    timestamp: datetime
-    location: Dict[str, float]
-    metadata: Dict[str, Any]
+**Phase A — Local (this repo)**  
+- Run Uvicorn + Vite on your machine. Geo cache uses `data/geo_cache.sqlite` under the repo root.
 
-@dataclass
-class Block:
-    index: int
-    timestamp: datetime
-    event: SupplyChainEvent
-    previous_hash: str
-    hash: str
-    nonce: int = 0
+**Phase B — Campus / R&E path**  
+- Serve the API behind your reverse proxy on **CENIC AIR** (or equivalent) so browsers use WebSockets and REST on a stable campus host. Point NRP **cron or Kubernetes jobs** at the same enrichment pipeline to refresh regional caches or precompute routes between fixed nodes (vineyard → facility → retail).
 
+**Phase C — NDR-backed artifacts**  
+- Swap `SqliteGeoCache` for an implementation of `GeoCacheBackend` that reads/writes your **NDR** object store (S3-compatible or campus-specific). Optionally export **ledger snapshots** and provenance hashes to NDR for reproducibility across institutions.
 
-backend/app/blockchain.py
-import hashlib
-from datetime import datetime
-from typing import List
-from .models import Block, SupplyChainEvent
+## API overview
 
-class Blockchain:
-    def __init__(self):
-        self.chain: List[Block] = []
-        self._create_genesis_block()
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/health` | Liveness |
+| GET | `/chain` | Full chain with `block` + `visual` per entry |
+| GET | `/simulate-once` | Runs one synthetic chain segment, adds blocks, enriches geo, **broadcasts each block** on `/ws` |
+| WS | `/ws` | Initial `chain_snapshot`, then `block` messages when new blocks are added |
 
-    def _create_genesis_block(self):
-        genesis_event = SupplyChainEvent(
-            event_id="GENESIS",
-            event_type="GENESIS",
-            timestamp=datetime.utcnow(),
-            location={"lat": 0.0, "lon": 0.0},
-            metadata={}
-        )
-        genesis_block = Block(
-            index=0,
-            timestamp=datetime.utcnow(),
-            event=genesis_event,
-            previous_hash="0",
-            hash="",
-        )
-        genesis_block.hash = self._calculate_hash(genesis_block)
-        self.chain.append(genesis_block)
+## Local development
 
-    def _calculate_hash(self, block: Block) -> str:
-        block_string = f"{block.index}{block.timestamp}{block.event.event_id}{block.previous_hash}{block.nonce}"
-        return hashlib.sha256(block_string.encode("utf-8")).hexdigest()
+**Backend**
 
-    def add_block(self, event: SupplyChainEvent) -> Block:
-        previous_block = self.chain[-1]
-        new_block = Block(
-            index=previous_block.index + 1,
-            timestamp=datetime.utcnow(),
-            event=event,
-            previous_hash=previous_block.hash,
-            hash="",
-        )
-        new_block.hash = self._calculate_hash(new_block)
-        self.chain.append(new_block)
-        return new_block
+```bash
+cd WineLedger
+python -m pip install -r requirements.txt
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
 
-    def is_valid(self) -> bool:
-        for i in range(1, len(self.chain)):
-            curr = self.chain[i]
-            prev = self.chain[i - 1]
-            if curr.previous_hash != prev.hash:
-                return False
-            if self._calculate_hash(curr) != curr.hash:
-                return False
-        return True
+**Frontend** (Vite proxies `/ws`, `/chain`, `/simulate-once` to port 8000)
 
-
-backend/app/simulator.py
-import uuid
-import random
-from datetime import datetime, timedelta
-from typing import List
-from .models import SupplyChainEvent
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-EVENT_SEQUENCE = [
-    "HARVEST",
-    "FERMENTATION",
-    "BARREL_AGING",
-    "BOTTLING",
-    "TRANSPORT",
-    "RETAIL",
-]
+Open the dev URL (default `http://127.0.0.1:5173`). Click **Simulate supply chain** or connect another client to the WebSocket to see live updates.
 
-BASE_LOCATION = {"lat": 38.2975, "lon": -122.2869}  # Napa-ish
+**Tests**
 
-def simulate_supply_chain(start_time: datetime | None = None) -> List[SupplyChainEvent]:
-    if start_time is None:
-        start_time = datetime.utcnow()
+```bash
+python -m pytest
+```
 
-    events: List[SupplyChainEvent] = []
-    current_time = start_time
+## Configuration
 
-    for event_type in EVENT_SEQUENCE:
-        event_id = str(uuid.uuid4())
-        # simple time progression
-        delta_hours = random.randint(4, 72)
-        current_time += timedelta(hours=delta_hours)
+- **Geo API keys**: For future OSM or vendor routing APIs, use environment variables or your campus secret store; do not commit secrets.
+- **Cache path**: `GeoEnrichmentService` uses `SqliteGeoCache` at `data/geo_cache.sqlite` (created automatically).
 
-        location = {
-            "lat": BASE_LOCATION["lat"] + random.uniform(-0.1, 0.1),
-            "lon": BASE_LOCATION["lon"] + random.uniform(-0.1, 0.1),
-        }
+## License
 
-        metadata = {
-            "temperature": round(random.uniform(8.0, 22.0), 1),
-            "batch_id": "BATCH-2026-001",
-            "notes": f"{event_type} event",
-        }
-
-        event = SupplyChainEvent(
-            event_id=event_id,
-            event_type=event_type,
-            timestamp=current_time,
-            location=location,
-            metadata=metadata,
-        )
-        events.append(event)
-
-    return events
-
-
-backend/app/main.py
-from fastapi import FastAPI
-from .blockchain import Blockchain
-from .simulator import simulate_supply_chain
-
-app = FastAPI()
-blockchain = Blockchain()
-
-@app.get("/simulate-once")
-def simulate_once():
-    events = simulate_supply_chain()
-    blocks = []
-    for event in events:
-        block = blockchain.add_block(event)
-        blocks.append({
-            "index": block.index,
-            "timestamp": block.timestamp.isoformat(),
-            "event_type": block.event.event_type,
-            "previous_hash": block.previous_hash,
-            "hash": block.hash,
-        })
-    return {
-        "valid_chain": blockchain.is_valid(),
-        "blocks": blocks,
-    }
-
-
-That endpoint alone already gives you:
-- a simulated wine supply chain
-- a blockchain ledger built from it
-- a JSON response you can later feed into the frontend
+See project policy for your institution or add a license file when you publish.

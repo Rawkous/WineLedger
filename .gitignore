@@ -1,1 +1,8 @@
-
+data/
+*.sqlite
+__pycache__/
+*.pyc
+.pytest_cache/
+node_modules/
+dist/
+.env

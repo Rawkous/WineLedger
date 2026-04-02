@@ -1,1 +1,80 @@
+:root {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: #f4f0e8;
+  background: #1a1510;
+}
 
+body {
+  margin: 0;
+  padding: 1rem 1.5rem 2rem;
+}
+
+.header h1 {
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.tagline {
+  margin: 0 0 1rem;
+  color: #b8a990;
+  font-size: 0.95rem;
+}
+
+.toolbar {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+button {
+  cursor: pointer;
+  border: 1px solid #5c4d3a;
+  background: #2d2419;
+  color: #f4f0e8;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+button:hover {
+  background: #3a3024;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.canvas-root {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #3d3428;
+  background: #120e0a;
+}
+
+.ledger-wrap h2 {
+  font-size: 1.1rem;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.ledger {
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid #3d3428;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  background: #120e0a;
+  font-size: 0.85rem;
+}
+
+.ledger-row {
+  padding: 0.35rem 0;
+  border-bottom: 1px solid #2a231c;
+  font-family: ui-monospace, monospace;
+  color: #d8cbb8;
+}
+
+.ledger-row:last-child {
+  border-bottom: none;
+}

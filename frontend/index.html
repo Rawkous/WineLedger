@@ -1,1 +1,27 @@
-
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WineLedger</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <h1>WineLedger</h1>
+        <p class="tagline">Supply chain events → ledger → generative visuals</p>
+      </header>
+      <div class="toolbar">
+        <button id="simulate" type="button">Simulate supply chain</button>
+        <button id="refresh-chain" type="button">Load chain</button>
+      </div>
+      <div id="canvas-root" class="canvas-root"></div>
+      <section class="ledger-wrap">
+        <h2>Ledger</h2>
+        <div id="ledger" class="ledger"></div>
+      </section>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

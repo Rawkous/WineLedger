@@ -1,5 +1,4 @@
 # Blockchain logic
-backend/app/blockchain.py
 import hashlib
 from datetime import datetime
 from typing import List
