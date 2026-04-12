@@ -1,10 +1,11 @@
+import os
 from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from .blockchain import Blockchain
 from .geo_enrichment import GeoEnrichmentService, SqliteGeoCache
+from .persistence import PersistentBlockchain
 from .mapping import event_to_visual_params
 from .schemas import BlockPayloadSchema, ChainResponseSchema, SimulateOnceResponseSchema, block_to_schema
 from .simulator import simulate_supply_chain
@@ -12,9 +13,10 @@ from .websocket import block_message_payload, manager, router as ws_router
 
 _DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 _CACHE_PATH = _DATA_DIR / "geo_cache.sqlite"
+_CHAIN_PATH = Path(os.environ.get("WINLEDGER_CHAIN_PATH", str(_DATA_DIR / "chain.json")))
 
 app = FastAPI(title="WineLedger", version="0.1.0")
-app.state.blockchain = Blockchain()
+app.state.blockchain = PersistentBlockchain(_CHAIN_PATH)
 app.state.geo = GeoEnrichmentService(cache=SqliteGeoCache(_CACHE_PATH))
 
 app.include_router(ws_router)

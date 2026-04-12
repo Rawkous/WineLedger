@@ -1,8 +1,8 @@
 # WineLedger
 
-**WineLedger** is a blockchain-inspired, web-based digital twin of the wine supply chain that turns each step of a bottle’s journey—from vineyard to glass—into generative visuals.
+**WineLedger** is a blockchain-inspired, web-based digital twin of the wine supply chain that transforms every step of a bottle’s journey—from vineyard to glass—into **living generative art**. The system simulates a realistic supply chain, records each event (harvest, fermentation, barrel aging, bottling, transport, retail) on a lightweight blockchain ledger, and streams those events to a browser-based visual engine. Each event becomes a visual gesture: a burst of particles, a shift in color, a change in motion—so transparency, sustainability, and “health” become something you can see evolving over time.
 
-The system simulates a realistic wine supply chain, records each event (harvest, fermentation, barrel aging, bottling, transport, retail) on a lightweight blockchain ledger, enriches events with geography metadata (routing hints, region codes, and NDR-style geometry references), and streams mapped payloads to a browser-based renderer. The FastAPI layer stays thin: orchestration, REST, WebSockets, and a pluggable geo cache; heavier batch work and large datasets can move to NRP/NDR as you scale.
+Built at the intersection of blockchain, supply chain modeling, and creative coding, WineLedger is both an educational tool and an artistic exploration of how data can tell stories. Under the hood, the FastAPI layer stays thin (REST + WebSockets) while events can be enriched with geography metadata (routing hints, region codes, and NDR-style geometry references) using a pluggable cache. The **chain is persisted** to disk (JSON under `data/`) so restarts keep history; as you scale, heavier batch work can move to **NRP** compute, and durable shared datasets or artifacts can land in an **NDR** data tier—without changing the core event and ledger contract.
 
 ## Repository layout
 
@@ -14,14 +14,17 @@ WineLedger/
 │   ├── models.py            # Block, SupplyChainEvent dataclasses
 │   ├── schemas.py           # Pydantic models (REST + WebSocket JSON)
 │   ├── blockchain.py        # Chain logic
-│   ├── simulator.py       # Synthetic supply chain events
+│   ├── persistence.py       # JSON chain file + PersistentBlockchain
+│   ├── simulator.py         # Synthetic supply chain events
 │   ├── mapping.py           # Event → visual parameters
 │   ├── geo_enrichment.py    # Geo adapter + cache + NDR-ready interface
 │   └── websocket.py         # WebSocket `/ws` + broadcast helpers
 ├── tests/
+│   ├── conftest.py          # test-only chain path isolation
 │   ├── test_blockchain.py
 │   ├── test_api.py
-│   └── test_geo.py
+│   ├── test_geo.py
+│   └── test_persistence.py
 ├── frontend/
 │   ├── index.html
 │   ├── vite.config.js
@@ -32,7 +35,8 @@ WineLedger/
 │       ├── websocketClient.js
 │       ├── ui.js
 │       └── styles.css
-├── data/                    # Local SQLite geo cache (gitignored)
+├── data/                    # gitignored: geo cache, chain JSON (see below)
+├── Makefile                 # install / test / dev helpers
 ├── requirements.txt
 ├── pytest.ini
 └── README.md
@@ -51,7 +55,7 @@ Older docs that referred to `backend/app/` described the same code; the live tre
 ## Deployment phases
 
 **Phase A — Local (this repo)**  
-- Run Uvicorn + Vite on your machine. Geo cache uses `data/geo_cache.sqlite` under the repo root.
+- Run Uvicorn + Vite on your machine. Geo cache uses `data/geo_cache.sqlite`; the chain is stored at `data/chain.json` (created automatically).
 
 **Phase B — Campus / R&E path**  
 - Serve the API behind your reverse proxy on **CENIC AIR** (or equivalent) so browsers use WebSockets and REST on a stable campus host. Point NRP **cron or Kubernetes jobs** at the same enrichment pipeline to refresh regional caches or precompute routes between fixed nodes (vineyard → facility → retail).
@@ -70,7 +74,21 @@ Older docs that referred to `backend/app/` described the same code; the live tre
 
 ## Local development
 
-**Backend**
+**Quick start (Make)** — requires [GNU Make](https://www.gnu.org/software/make/) (e.g. Git Bash or WSL on Windows):
+
+```bash
+cd WineLedger
+make install
+make test
+# Terminal 1:
+make dev-backend
+# Terminal 2:
+make dev-frontend
+```
+
+See `make help` for targets.
+
+**Backend** (manual)
 
 ```bash
 cd WineLedger
@@ -96,8 +114,9 @@ python -m pytest
 
 ## Configuration
 
+- **Chain file**: Default path is `data/chain.json`. Override with environment variable `WINLEDGER_CHAIN_PATH` (absolute path to a `.json` file). Tests set this automatically to a temp file so they do not touch your dev chain.
 - **Geo API keys**: For future OSM or vendor routing APIs, use environment variables or your campus secret store; do not commit secrets.
-- **Cache path**: `GeoEnrichmentService` uses `SqliteGeoCache` at `data/geo_cache.sqlite` (created automatically).
+- **Geo cache path**: `GeoEnrichmentService` uses `SqliteGeoCache` at `data/geo_cache.sqlite` (created automatically).
 
 ## License
 
