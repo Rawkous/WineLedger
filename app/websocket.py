@@ -63,8 +63,8 @@ def block_message_payload(block: Block) -> dict:
 
 
 @router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket, request: Request) -> None:
-    blockchain: Blockchain = request.app.state.blockchain
+async def websocket_endpoint(websocket: WebSocket) -> None:
+    blockchain: Blockchain = websocket.app.state.blockchain
     await manager.connect(websocket)
     try:
         await websocket.send_text(json.dumps(chain_snapshot_payload(blockchain), default=str))

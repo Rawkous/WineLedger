@@ -1,0 +1,7 @@
+Milestone Name,Date,No,Position,Notes
+Production criteria agreed,2026-04-17,0,2,SLO URL HTTPS WS persistence
+CI green on main,2026-04-22,0,2,pytest + optional frontend build in Actions
+First deploy to target host,2026-05-01,0,2,API + UI + persistent data/ volume
+TLS proxy WebSocket verified (wss),2026-05-07,0,2,Acceptance: live blocks over WS
+Persistent data backup restore tested,2026-05-06,0,2,chain.json + geo_cache.sqlite
+Go-live UAT complete,2026-05-14,0,2,Operational sign-off

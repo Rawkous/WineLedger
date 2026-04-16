@@ -1,0 +1,14 @@
+ID,Task Name,Start,Finish,Duration days,% Complete,Predecessor IDs,Notes
+1,Document prod SLO and acceptance criteria,2026-04-13,2026-04-15,3,0,,HTTPS URL WS acceptance data survives restart
+2,Lock Python and Node versions in repo,2026-04-13,2026-04-14,2,0,,requirements.txt package.json engines README
+3,Define prod env vars and secrets handling,2026-04-16,2026-04-17,2,0,1,WINLEDGER_CHAIN_PATH cache path no secrets in git
+4,Production frontend path vite build and static serving,2026-04-20,2026-04-23,4,0,3,dist served by proxy or CDN decision
+5,GitHub Actions CI pytest and optional npm build,2026-04-20,2026-04-22,3,0,3,
+6,Select host provision compute and persistent volume,2026-04-20,2026-04-24,5,0,1,
+7,Optional Docker and compose for API plus frontend,2026-04-27,2026-05-01,5,0,4,
+8,First production deploy API UI and data mount,2026-04-27,2026-05-01,5,0,"4,6",Mount data/ for chain and sqlite
+9,TLS reverse proxy verify WebSocket wss end to end,2026-05-04,2026-05-07,4,0,8,Upgrade headers timeouts
+10,Restrict CORS to production frontend origins,2026-05-08,2026-05-08,1,0,9,
+11,Backup strategy and restore drill for data directory,2026-05-04,2026-05-06,3,0,8,
+12,Operator runbook restart logs common failures,2026-05-04,2026-05-05,2,0,8,
+13,UAT with stakeholders fix blockers,2026-05-11,2026-05-14,4,0,"9,10,11",Sign-off for operational
