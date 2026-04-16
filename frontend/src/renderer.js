@@ -1,8 +1,11 @@
 /**
- * p5.js instance-mode sketch driven by `visual` payloads from the mapping layer.
+ * Hydra renderer driven by `visual` payloads from the backend mapping layer.
+ *
+ * The mapping payload becomes a small set of Hydra parameters (osc/noise/kaleid/etc).
+ * We rebuild the Hydra chain whenever `visual` changes (events are low frequency).
  */
 
-import p5 from "p5";
+import Hydra from "hydra-synth";
 
 const defaults = {
   hue: 200,
@@ -14,55 +17,108 @@ const defaults = {
 };
 
 let currentVisual = { ...defaults };
+let hydra = null;
+let hydraCanvas = null;
+
+function clamp01(x) {
+  if (Number.isNaN(x)) return 0;
+  return Math.max(0, Math.min(1, x));
+}
+
+function hsbToRgb(h, s, v) {
+  // h: [0..360), s/v: [0..1] -> r/g/b: [0..1]
+  const hh = ((h % 360) + 360) % 360;
+  const c = v * s;
+  const x = c * (1 - Math.abs(((hh / 60) % 2) - 1));
+  const m = v - c;
+  let rp = 0,
+    gp = 0,
+    bp = 0;
+  if (hh < 60) [rp, gp, bp] = [c, x, 0];
+  else if (hh < 120) [rp, gp, bp] = [x, c, 0];
+  else if (hh < 180) [rp, gp, bp] = [0, c, x];
+  else if (hh < 240) [rp, gp, bp] = [0, x, c];
+  else if (hh < 300) [rp, gp, bp] = [x, 0, c];
+  else [rp, gp, bp] = [c, 0, x];
+  return [rp + m, gp + m, bp + m];
+}
+
+function ensureHydra(container) {
+  if (hydra && hydraCanvas) return;
+
+  container.replaceChildren();
+  hydraCanvas = document.createElement("canvas");
+  hydraCanvas.style.width = "100%";
+  hydraCanvas.style.height = "420px";
+  hydraCanvas.style.borderRadius = "12px";
+  container.appendChild(hydraCanvas);
+
+  hydra = new Hydra({
+    canvas: hydraCanvas,
+    detectAudio: false,
+    makeGlobal: true,
+    autoLoop: true,
+  });
+
+  rebuildHydraPatch();
+
+  window.addEventListener("resize", () => {
+    // Hydra reads canvas size; setting width/height forces a resize.
+    const rect = hydraCanvas.getBoundingClientRect();
+    hydraCanvas.width = Math.max(1, Math.floor(rect.width));
+    hydraCanvas.height = Math.max(1, Math.floor(rect.height));
+  });
+}
+
+function rebuildHydraPatch() {
+  if (!hydra) return;
+  const v = currentVisual;
+
+  const sat = clamp01(v.saturation);
+  const bri = clamp01(v.brightness);
+  const motion = clamp01(v.motion);
+  const burst = Math.max(8, Math.min(220, v.particle_burst | 0));
+
+  const [r, g, b] = hsbToRgb(v.hue, Math.min(1, sat * 1.1), bri);
+
+  // Translate WineLedger → Hydra controls.
+  const freq = 2 + motion * 10 + (burst / 220) * 6;
+  const sync = 0.08 + motion * 0.25;
+  const offset = 0.6 + (v.hue % 60) / 120;
+  const k = 2 + Math.round(2 + motion * 10);
+  const rot = motion * 0.8;
+  const modAmt = 0.05 + motion * 0.25;
+  const noiseScale = 0.8 + motion * 3.2;
+
+  // Hydra API is global when makeGlobal=true.
+  // eslint-disable-next-line no-undef
+  osc(freq, sync, offset)
+    // eslint-disable-next-line no-undef
+    .kaleid(k)
+    // eslint-disable-next-line no-undef
+    .rotate(rot)
+    // eslint-disable-next-line no-undef
+    .modulate(noise(noiseScale, 0.12), modAmt)
+    // eslint-disable-next-line no-undef
+    .color(r, g, b)
+    // eslint-disable-next-line no-undef
+    .contrast(1.1 + motion * 0.9)
+    // eslint-disable-next-line no-undef
+    .saturate(0.9 + sat * 2.2)
+    // eslint-disable-next-line no-undef
+    .out();
+}
 
 export function setVisual(visual) {
   currentVisual = { ...currentVisual, ...visual };
+  rebuildHydraPatch();
 }
 
 export function mountRenderer(container) {
-  const sketch = (p) => {
-    p.setup = () => {
-      const w = Math.min(880, container.clientWidth || 800);
-      p.createCanvas(w, 420);
-      p.colorMode(p.HSB, 360, 1, 1);
-      p.noStroke();
-    };
-
-    p.windowResized = () => {
-      const w = Math.min(880, container.clientWidth || 800);
-      p.resizeCanvas(w, 420);
-    };
-
-    p.draw = () => {
-      const v = currentVisual;
-      const bgHue = (v.hue + p.frameCount * 0.03) % 360;
-      p.background(bgHue, 0.12, 0.08);
-
-      p.fill(v.hue, v.saturation * 0.9, v.brightness);
-      p.textAlign(p.CENTER, p.CENTER);
-      p.textSize(14);
-      p.text(v.label || "WineLedger", p.width / 2, 24);
-
-      const n = Math.min(220, Math.max(8, v.particle_burst | 0));
-      const t = p.frameCount * 0.012;
-      for (let i = 0; i < n; i += 1) {
-        const a = (i / n) * p.TWO_PI + t * (0.5 + v.motion);
-        const wave = p.sin(t + i * 0.1) * 0.5 + 0.5;
-        const r = 40 + 140 * v.motion + 60 * wave;
-        const x = p.width / 2 + p.cos(a) * r;
-        const y = p.height / 2 + p.sin(a) * r * 0.85;
-        const sz = 3 + v.motion * 5 + (i % 7) * 0.1;
-        p.fill((v.hue + i * 0.4) % 360, v.saturation, v.brightness);
-        p.circle(x, y, sz);
-      }
-    };
-  };
-
-  return new p5(sketch, container);
+  ensureHydra(container);
+  return { kind: "hydra" };
 }
 
 export function applyBlockPayload(payload) {
-  if (payload && payload.visual) {
-    setVisual(payload.visual);
-  }
+  if (payload && payload.visual) setVisual(payload.visual);
 }
