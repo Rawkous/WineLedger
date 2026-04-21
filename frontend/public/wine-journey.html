@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="From vineyard to glass: how wine is made, aligned with WineLedger's supply-chain simulation."
+    />
+    <title>Wine journey — WineLedger</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/education.css" />
+  </head>
+  <body>
+    <a class="skip" href="#content">Skip to content</a>
+    <div class="wrap">
+      <header class="topbar">
+        <div class="brand-mini"><a href="/">WineLedger</a></div>
+        <a class="nav-back" href="/">← Back to live ledger</a>
+      </header>
+
+      <header class="hero" id="content">
+        <h1>From grape to glass</h1>
+        <p class="lead">
+          A concise, classroom-friendly path through real-world wine production — the same stages your
+          <strong>WineLedger</strong> simulation encodes as blocks. Use it alongside the canvas to connect
+          <em>process</em>, <em>data</em>, and <em>transparency</em>.
+        </p>
+      </header>
+
+      <section class="card" aria-labelledby="how-title">
+        <h2 id="how-title">How this pairs with WineLedger</h2>
+        <p>
+          Each time you run <code>/simulate-once</code>, the app appends six events:
+          <strong>HARVEST → FERMENTATION → BARREL_AGING → BOTTLING → TRANSPORT → RETAIL</strong>. On the
+          ledger they are immutable records; on the canvas they become color and motion. This page explains
+          <em>why</em> those stages exist in the real industry, so learners can interpret the visuals as more
+          than abstract art.
+        </p>
+      </section>
+
+      <article class="card" id="harvest">
+        <span class="tag">Ledger: HARVEST</span>
+        <h3>Harvest</h3>
+        <figure class="figure">
+          <img src="/education/harvest.svg" width="200" height="175" alt="Stylized ripe grapes on the vine" />
+          <figcaption>Illustration: fruit maturity and picking</figcaption>
+        </figure>
+        <p>
+          Grapes are picked when sugar, acid, and flavor compounds reach a target profile — by hand in steep
+          vineyards or by machine on flatter ground. Timing shifts with weather; heat waves or rain can move the
+          picking window by days. In teaching, harvest is a natural entry point for <strong>sensor data</strong>
+          (Brix, pH) and <strong>provenance</strong> (block, clone, crew).
+        </p>
+      </article>
+
+      <article class="card" id="fermentation">
+        <span class="tag">Ledger: FERMENTATION</span>
+        <h3>Fermentation</h3>
+        <figure class="figure">
+          <img
+            src="/education/ferment.svg"
+            width="200"
+            height="175"
+            alt="Stylized fermentation tank with bubbles"
+          />
+          <figcaption>Illustration: yeast turning sugar into alcohol</figcaption>
+        </figure>
+        <p>
+          Yeasts (often <em>Saccharomyces</em>) consume grape sugars and produce alcohol, CO₂, and heat. Red wines
+          often ferment on skins to extract color and tannin; whites are usually pressed first. Temperature control
+          and cap management are critical. On the ledger, fermentation is a good metaphor for
+          <strong>transformation</strong>: inputs become outputs under rules you can log and audit.
+        </p>
+      </article>
+
+      <article class="card" id="barrel">
+        <span class="tag">Ledger: BARREL_AGING</span>
+        <h3>Barrel aging</h3>
+        <figure class="figure">
+          <img src="/education/barrel.svg" width="200" height="175" alt="Stylized oak wine barrels" />
+          <figcaption>Illustration: oak and slow oxygen exchange</figcaption>
+        </figure>
+        <p>
+          Many wines rest in oak barrels (or large neutral vessels) to soften tannins, develop aroma, and allow
+          controlled oxygen pickup. Coopers, toast levels, and cellar climate all shape the outcome. Some wines
+          skip wood entirely. Educationally, barrel aging highlights <strong>time-delayed quality</strong> and
+          <strong>batch identity</strong> — ideal for discussing long-lived records versus ephemeral dashboards.
+        </p>
+      </article>
+
+      <article class="card" id="bottling">
+        <span class="tag">Ledger: BOTTLING</span>
+        <h3>Bottling & closure</h3>
+        <figure class="figure">
+          <img src="/education/bottle.svg" width="200" height="175" alt="Stylized wine bottle on a line" />
+          <figcaption>Illustration: packaging as a controlled step</figcaption>
+        </figure>
+        <p>
+          Finished wine is filtered or stabilized, dosed if needed, then filled under hygiene controls. Cork,
+          screwcap, or other closures affect aging trajectory. Labels carry legal and marketing claims. This stage
+          is where <strong>identity meets regulation</strong> — lot codes, TTB-style truth-in-labeling, and export
+          paperwork are all traceability exercises.
+        </p>
+      </article>
+
+      <article class="card" id="transport">
+        <span class="tag">Ledger: TRANSPORT</span>
+        <h3>Transport & cold chain</h3>
+        <figure class="figure">
+          <img src="/education/transport.svg" width="200" height="175" alt="Stylized truck carrying goods" />
+          <figcaption>Illustration: logistics between regions</figcaption>
+        </figure>
+        <p>
+          Bottles move by truck, container, or air to distributors, export markets, or direct-to-consumer hubs.
+          Temperature spikes are a common quality risk. Maps, routes, and handoffs are a strong fit for
+          WineLedger’s <strong>geo enrichment</strong> ideas — distance, region codes, and corridor hints can sit
+          beside each block’s metadata.
+        </p>
+      </article>
+
+      <article class="card" id="retail">
+        <span class="tag">Ledger: RETAIL</span>
+        <h3>Retail & the glass</h3>
+        <figure class="figure">
+          <img src="/education/retail.svg" width="200" height="175" alt="Stylized retail wine shelf" />
+          <figcaption>Illustration: last mile to the consumer</figcaption>
+        </figure>
+        <p>
+          Shops, restaurants, and subscription clubs are where story, price, and provenance meet the buyer. Staff
+          training and consumer trust depend on consistent information. A tamper-evident <strong>ledger narrative</strong>
+          — even a simplified one — can support discussions of fraud, recalls, and sustainability marketing claims.
+        </p>
+      </article>
+
+      <section class="card" id="history" aria-labelledby="hist-title">
+        <h2 id="hist-title">A little historical context</h2>
+        <p>
+          Wine is among the oldest fermented beverages in the archaeological record, with production spread by trade,
+          empire, and religion. Techniques now considered “modern” — temperature control, sterile filtration,
+          scientific viticulture — sit atop centuries of craft knowledge. WineLedger is not a history simulator,
+          but framing <strong>why transparency matters today</strong> (global supply chains, climate stress, consumer
+          expectations) helps students see blockchains and ledgers as tools for stewardship, not only speculation.
+        </p>
+      </section>
+
+      <section class="card" id="ideas" aria-labelledby="ideas-title">
+        <h2 id="ideas-title">Ideas to deepen the educational experience</h2>
+        <p>
+          Mix and match these with your course level (STEM outreach, hospitality, supply-chain, or digital humanities).
+        </p>
+        <div class="ideas-grid">
+          <div class="idea">
+            <h3>Map events to data fields</h3>
+            <p>
+              Have learners list what they would log at each stage (temperature, vessel ID, CO₂ venting, TTB lot, GPS).
+              Compare with the JSON your API already returns.
+            </p>
+          </div>
+          <div class="idea">
+            <h3>Integrity & “why chain?”</h3>
+            <p>
+              Discuss hash links and immutability using the genesis block and tampering scenarios. Relate to food
+              recalls and counterfeit bottles in the news.
+            </p>
+          </div>
+          <div class="idea">
+            <h3>Slow simulation + journaling</h3>
+            <p>
+              Use <code>pace_ms</code> so each visual lingers; students sketch or write a one-sentence hypothesis
+              before the next event arrives.
+            </p>
+          </div>
+          <div class="idea">
+            <h3>Sustainability & ethics</h3>
+            <p>
+              Add a classroom debate: what should a ledger prove — carbon, water, fair labor? Which claims belong on
+              chain vs. in a separate report?
+            </p>
+          </div>
+          <div class="idea">
+            <h3>Geo & routing literacy</h3>
+            <p>
+              Use metadata like <code>region_code</code> and route distance to introduce maps, great-circle vs. road
+              routing, and limitations of synthetic data.
+            </p>
+          </div>
+          <div class="idea">
+            <h3>Creative coding bridge</h3>
+            <p>
+              Tie Hydra parameters (hue, motion) to scientific meaning — e.g., map heat stress to saturation — and
+              critique whether the mapping is fair or misleading.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="further-title">
+        <h2 id="further-title">Further reading (open resources)</h2>
+        <ul>
+          <li>
+            <a href="https://commons.wikimedia.org/wiki/Category:Viticulture" rel="noopener noreferrer"
+              >Wikimedia Commons — Viticulture</a
+            >
+            for photographs and diagrams under free licenses.
+          </li>
+          <li>
+            University extension programs (e.g. UC Davis, regional ag schools) publish grower guides that pair well
+            with lab-style ledger exercises.
+          </li>
+          <li>
+            Compare your six simulated stages to formal schemes such as <abbr title="Global Trade Item Number">GTIN</abbr>
+            + batch traceability in other food verticals.
+          </li>
+        </ul>
+      </section>
+
+      <footer class="page-foot">
+        <p>
+          WineLedger educational companion · <a href="/">Return to app</a> · Figures are original SVGs in
+          <code>/education/</code> for offline use.
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

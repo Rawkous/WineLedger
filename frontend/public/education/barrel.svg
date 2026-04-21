@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 140" role="img" aria-labelledby="t">
+  <title id="t">Oak barrels</title>
+  <ellipse cx="50" cy="88" rx="28" ry="12" fill="#1c120c"/>
+  <path fill="#5c3d2e" d="M22 50 Q22 88 50 100 Q78 88 78 50 Q78 32 50 28 Q22 32 22 50Z"/>
+  <path fill="#7a5a42" d="M22 50 Q50 58 78 50" fill="none" stroke="#3d2618" stroke-width="2"/>
+  <path fill="#7a5a42" d="M22 68 Q50 76 78 68" fill="none" stroke="#3d2618" stroke-width="2"/>
+  <ellipse cx="80" cy="82" rx="26" ry="11" fill="#1c120c"/>
+  <path fill="#4a3224" d="M54 48 Q54 82 80 92 Q106 82 106 48 Q106 30 80 26 Q54 30 54 48Z"/>
+  <path fill="none" stroke="#3d2618" stroke-width="2" d="M54 58 Q80 66 106 58 M54 72 Q80 80 106 72"/>
+  <ellipse cx="112" cy="78" rx="24" ry="10" fill="#1c120c"/>
+  <path fill="#3d2618" d="M88 46 Q88 78 112 86 Q136 78 136 46 Q136 30 112 24 Q88 30 88 46Z"/>
+  <path fill="none" stroke="#2a1a12" stroke-width="2" d="M88 56 Q112 64 136 56 M88 68 Q112 76 136 68"/>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 140" role="img" aria-labelledby="t">
+  <title id="t">Transport</title>
+  <rect x="0" y="100" width="160" height="40" fill="#3d2618"/>
+  <path stroke="#5c3f2e" stroke-width="2" fill="none" d="M0 108 H160"/>
+  <rect x="18" y="48" width="95" height="52" rx="4" fill="#722f37"/>
+  <path fill="#5c1f28" d="M113 60 L145 72 L145 96 L113 96 Z"/>
+  <rect x="26" y="56" width="28" height="18" rx="2" fill="#1c120c" opacity="0.35"/>
+  <circle cx="42" cy="102" r="12" fill="#1c120c" stroke="#7a5a42" stroke-width="2"/>
+  <circle cx="42" cy="102" r="5" fill="#5c3f2e"/>
+  <circle cx="118" cy="102" r="12" fill="#1c120c" stroke="#7a5a42" stroke-width="2"/>
+  <circle cx="118" cy="102" r="5" fill="#5c3f2e"/>
+  <rect x="30" y="40" width="8" height="12" fill="#c4a35a" opacity="0.6"/>
+</svg>

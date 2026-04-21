@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 140" role="img" aria-labelledby="t">
+  <title id="t">Retail shelf</title>
+  <rect x="12" y="24" width="136" height="8" fill="#5c3f2e"/>
+  <rect x="12" y="64" width="136" height="8" fill="#5c3f2e"/>
+  <rect x="12" y="104" width="136" height="8" fill="#5c3f2e"/>
+  <path fill="#722f37" d="M28 32 L28 64 L38 64 L38 32 Z M38 20 L38 32 L48 32 L48 20 Z"/>
+  <path fill="#5c1f28" d="M58 32 L58 64 L68 64 L68 32 Z M68 18 L68 32 L78 32 L78 18 Z"/>
+  <path fill="#8b3a48" d="M88 32 L88 64 L98 64 L98 32 Z M98 22 L98 32 L108 32 L108 22 Z"/>
+  <path fill="#722f37" d="M118 72 L118 104 L128 104 L128 72 Z M128 58 L128 72 L138 72 L138 58 Z"/>
+  <path fill="#3d2618" d="M38 72 L38 104 L48 104 L48 72 Z M48 60 L48 72 L58 72 L58 60 Z"/>
+  <path fill="#5c1f28" d="M68 72 L68 104 L78 104 L78 72 Z M78 62 L78 72 L88 72 L88 62 Z"/>
+</svg>

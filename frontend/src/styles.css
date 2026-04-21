@@ -252,6 +252,21 @@ body {
   box-shadow: var(--ring-focus);
 }
 
+a.top-menu__link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  box-sizing: border-box;
+}
+
+a.top-menu__link:hover {
+  background: rgba(196, 163, 90, 0.12);
+}
+
+[data-theme="light"] a.top-menu__link:hover {
+  background: rgba(138, 112, 56, 0.12);
+}
+
 .top-menu__row {
   padding: 0.5rem 0.75rem 0.65rem;
   margin-top: 0.15rem;
@@ -855,6 +870,20 @@ body {
   padding: 0.1em 0.35em;
   border-radius: 4px;
   background: rgba(0, 0, 0, 0.35);
+  color: var(--vine-gold-dim);
+}
+
+.app-footer a {
+  color: var(--vine-gold);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.app-footer a:hover {
+  color: #e0c77a;
+}
+
+[data-theme="light"] .app-footer a {
   color: var(--vine-gold-dim);
 }
 

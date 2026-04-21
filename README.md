@@ -112,6 +112,8 @@ npm run dev
 
 Open the dev URL (default `http://127.0.0.1:5173`). Click **Simulate supply chain** or connect another client to the WebSocket to see live updates.
 
+**Education:** open **`/wine-journey.html`** (same dev server) for a companion page on the real wine-production path, aligned with the simulated ledger stages, teaching prompts, and offline-friendly illustrations under `frontend/public/education/`.
+
 **Tests**
 
 ```bash

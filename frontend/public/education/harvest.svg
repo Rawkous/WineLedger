@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 140" role="img" aria-labelledby="t">
+  <title id="t">Grape harvest</title>
+  <path fill="#3d2618" d="M0 100 Q40 85 80 95 T160 100 V140 H0Z"/>
+  <ellipse cx="80" cy="58" rx="38" ry="44" fill="#5c1f28" opacity="0.9"/>
+  <circle cx="62" cy="52" r="12" fill="#722f37"/>
+  <circle cx="88" cy="48" r="11" fill="#8b3a48"/>
+  <circle cx="76" cy="68" r="10" fill="#5c1f28"/>
+  <circle cx="98" cy="62" r="9" fill="#722f37"/>
+  <path fill="#5c6b4f" d="M78 8 Q95 28 82 42 Q70 30 78 8Z"/>
+  <path fill="#6d7d5f" d="M82 12 Q68 35 75 45 Q88 32 82 12Z"/>
+</svg>
