@@ -3,24 +3,92 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1c120c" />
+    <meta
+      name="description"
+      content="WineLedger — supply chain events on a living ledger, rendered as generative art."
+    />
     <title>WineLedger</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="/src/styles.css" />
   </head>
   <body>
-    <div id="app">
-      <header class="header">
-        <h1>WineLedger</h1>
-        <p class="tagline">Supply chain events → ledger → generative visuals</p>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div id="app" class="app">
+      <header class="app-header" role="banner">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <div class="brand-text">
+            <h1 class="brand-title">WineLedger</h1>
+            <p class="brand-tagline">
+              From vineyard to glass — each supply chain event etched on the ledger and
+              expressed as living generative art.
+            </p>
+          </div>
+        </div>
+        <div class="header-meta">
+          <div
+            id="conn-status"
+            class="conn-status"
+            role="status"
+            aria-live="polite"
+            data-state="connecting"
+          >
+            <span class="conn-status__dot" aria-hidden="true"></span>
+            <span class="conn-status__label">Connecting…</span>
+          </div>
+        </div>
       </header>
-      <div class="toolbar">
-        <button id="simulate" type="button">Simulate supply chain</button>
-        <button id="refresh-chain" type="button">Load chain</button>
-      </div>
-      <div id="canvas-root" class="canvas-root"></div>
-      <section class="ledger-wrap">
-        <h2>Ledger</h2>
-        <div id="ledger" class="ledger"></div>
-      </section>
+
+      <main id="main" class="app-main">
+        <section class="panel panel--visual" aria-labelledby="visual-heading">
+          <div class="panel__head">
+            <h2 id="visual-heading" class="panel__title">Living canvas</h2>
+            <p class="panel__hint">
+              Streamed events reshape color, motion, and rhythm — transparency you can see.
+            </p>
+          </div>
+          <div id="canvas-root" class="canvas-frame" aria-label="Generative visual canvas"></div>
+          <div class="visual-caption">
+            <p id="visual-label" class="visual-label" aria-live="polite">Waiting for events…</p>
+            <p class="visual-caption__sub">
+              Run a simulation or connect another client; new blocks update this view in real time.
+            </p>
+          </div>
+        </section>
+
+        <aside class="panel panel--side" aria-labelledby="ledger-heading">
+          <div class="panel__head panel__head--row">
+            <h2 id="ledger-heading" class="panel__title">Ledger</h2>
+            <span id="ledger-count" class="ledger-count" aria-live="polite">0 entries</span>
+          </div>
+
+          <div class="action-bar" role="group" aria-label="Ledger actions">
+            <button id="simulate" type="button" class="btn btn--primary">
+              <span class="btn__icon" aria-hidden="true">◇</span>
+              Simulate supply chain
+            </button>
+            <button id="refresh-chain" type="button" class="btn btn--ghost">
+              <span class="btn__icon" aria-hidden="true">↻</span>
+              Load chain
+            </button>
+          </div>
+
+          <div id="ledger" class="ledger" role="feed" aria-label="Blockchain ledger entries"></div>
+        </aside>
+      </main>
+
+      <footer class="app-footer">
+        <p>
+          WineLedger · REST <code>/chain</code> · WebSocket <code>/ws</code> · Generative layer via
+          Hydra
+        </p>
+      </footer>
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>

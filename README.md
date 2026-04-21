@@ -88,11 +88,17 @@ make dev-frontend
 
 See `make help` for targets.
 
+If you’re on a system with globally-installed pytest plugins (common with ROS), `make test` disables external plugin autoload by default for repeatability. To re-enable it:
+
+```bash
+make PYTEST_DISABLE_PLUGIN_AUTOLOAD=0 test
+```
+
 **Backend** (manual)
 
 ```bash
 cd WineLedger
-python -m pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 

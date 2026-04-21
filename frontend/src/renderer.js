@@ -48,9 +48,7 @@ function ensureHydra(container) {
 
   container.replaceChildren();
   hydraCanvas = document.createElement("canvas");
-  hydraCanvas.style.width = "100%";
-  hydraCanvas.style.height = "420px";
-  hydraCanvas.style.borderRadius = "12px";
+  hydraCanvas.className = "hydra-canvas";
   container.appendChild(hydraCanvas);
 
   hydra = new Hydra({
@@ -62,12 +60,19 @@ function ensureHydra(container) {
 
   rebuildHydraPatch();
 
-  window.addEventListener("resize", () => {
-    // Hydra reads canvas size; setting width/height forces a resize.
+  const syncCanvasSize = () => {
     const rect = hydraCanvas.getBoundingClientRect();
-    hydraCanvas.width = Math.max(1, Math.floor(rect.width));
-    hydraCanvas.height = Math.max(1, Math.floor(rect.height));
-  });
+    const w = Math.max(1, Math.floor(rect.width));
+    const h = Math.max(1, Math.floor(rect.height));
+    if (hydraCanvas.width !== w || hydraCanvas.height !== h) {
+      hydraCanvas.width = w;
+      hydraCanvas.height = h;
+    }
+  };
+
+  syncCanvasSize();
+  const ro = new ResizeObserver(syncCanvasSize);
+  ro.observe(container);
 }
 
 function rebuildHydraPatch() {
