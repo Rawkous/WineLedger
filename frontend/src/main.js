@@ -2,6 +2,9 @@ import { connectLedgerSocket } from "./websocketClient.js";
 import { applyBlockPayload, mountRenderer, setVisual } from "./renderer.js";
 import { appendLedgerBlock, renderLedger } from "./ui.js";
 
+const THEME_KEY = "wineledger-theme";
+const LANG_KEY = "wineledger-lang";
+
 const canvasRoot = document.getElementById("canvas-root");
 const ledgerEl = document.getElementById("ledger");
 const ledgerCountEl = document.getElementById("ledger-count");
@@ -9,8 +12,126 @@ const simulateBtn = document.getElementById("simulate");
 const refreshBtn = document.getElementById("refresh-chain");
 const connStatusEl = document.getElementById("conn-status");
 const visualLabelEl = document.getElementById("visual-label");
+const themeColorMeta = document.getElementById("theme-color-meta");
+
+const menuToggle = document.getElementById("menu-toggle");
+const menuPanel = document.getElementById("top-menu-panel");
+const langSelect = document.getElementById("lang-select");
+const themeButtons = document.querySelectorAll(".theme-toggle__btn");
 
 mountRenderer(canvasRoot);
+
+function setTheme(theme) {
+  const next = theme === "light" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try {
+    localStorage.setItem(THEME_KEY, next);
+  } catch {
+    /* ignore */
+  }
+  if (themeColorMeta) {
+    themeColorMeta.setAttribute("content", next === "light" ? "#f7f3ec" : "#1c120c");
+  }
+  themeButtons.forEach((btn) => {
+    const pressed = btn.getAttribute("data-theme-choice") === next;
+    btn.setAttribute("aria-pressed", pressed ? "true" : "false");
+  });
+}
+
+function loadStoredTheme() {
+  try {
+    const stored = localStorage.getItem(THEME_KEY);
+    if (stored === "light" || stored === "dark") {
+      setTheme(stored);
+      return;
+    }
+  } catch {
+    /* ignore */
+  }
+  setTheme("dark");
+}
+
+function closeMenu() {
+  if (!menuPanel || !menuToggle) return;
+  menuPanel.hidden = true;
+  menuToggle.setAttribute("aria-expanded", "false");
+}
+
+function openMenu() {
+  if (!menuPanel || !menuToggle) return;
+  menuPanel.hidden = false;
+  menuToggle.setAttribute("aria-expanded", "true");
+  const first = menuPanel.querySelector(".top-menu__item");
+  first?.focus();
+}
+
+function toggleMenu() {
+  if (!menuPanel?.hidden) closeMenu();
+  else openMenu();
+}
+
+loadStoredTheme();
+
+menuToggle?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toggleMenu();
+});
+
+document.addEventListener("click", () => {
+  closeMenu();
+});
+
+menuPanel?.addEventListener("click", (e) => {
+  e.stopPropagation();
+});
+
+menuPanel?.querySelectorAll("[data-open-dialog]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const id = btn.getAttribute("data-open-dialog");
+    const dlg = id ? document.getElementById(id) : null;
+    if (dlg && typeof dlg.showModal === "function") {
+      closeMenu();
+      dlg.showModal();
+    }
+  });
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && menuPanel && !menuPanel.hidden) {
+    closeMenu();
+    menuToggle?.focus();
+  }
+});
+
+try {
+  const lang = localStorage.getItem(LANG_KEY);
+  if (lang && langSelect) {
+    const opt = langSelect.querySelector(`option[value="${lang}"]`);
+    if (opt && !opt.disabled) {
+      langSelect.value = lang;
+      document.documentElement.lang = lang;
+    }
+  }
+} catch {
+  /* ignore */
+}
+
+langSelect?.addEventListener("change", () => {
+  const v = langSelect.value;
+  document.documentElement.lang = v;
+  try {
+    localStorage.setItem(LANG_KEY, v);
+  } catch {
+    /* ignore */
+  }
+});
+
+themeButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const choice = btn.getAttribute("data-theme-choice");
+    if (choice === "light" || choice === "dark") setTheme(choice);
+  });
+});
 
 function setLedgerCount(n) {
   if (!ledgerCountEl) return;

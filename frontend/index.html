@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#1c120c" />
+    <meta id="theme-color-meta" name="theme-color" content="#1c120c" />
     <meta
       name="description"
       content="WineLedger — supply chain events on a living ledger, rendered as generative art."
@@ -31,7 +31,7 @@
             </p>
           </div>
         </div>
-        <div class="header-meta">
+        <div class="header-actions">
           <div
             id="conn-status"
             class="conn-status"
@@ -42,8 +42,102 @@
             <span class="conn-status__dot" aria-hidden="true"></span>
             <span class="conn-status__label">Connecting…</span>
           </div>
+
+          <div class="top-menu">
+            <button
+              type="button"
+              id="menu-toggle"
+              class="menu-toggle"
+              aria-expanded="false"
+              aria-haspopup="true"
+              aria-controls="top-menu-panel"
+            >
+              <span class="menu-toggle__icon" aria-hidden="true">☰</span>
+              Menu
+            </button>
+            <div
+              id="top-menu-panel"
+              class="top-menu__panel"
+              role="menu"
+              aria-labelledby="menu-toggle"
+              hidden
+            >
+              <button type="button" class="top-menu__item" role="menuitem" data-open-dialog="dlg-settings">
+                Page settings
+              </button>
+              <button type="button" class="top-menu__item" role="menuitem" data-open-dialog="dlg-about">
+                About
+              </button>
+              <button type="button" class="top-menu__item" role="menuitem" data-open-dialog="dlg-project">
+                Project info
+              </button>
+              <div class="top-menu__row" role="none">
+                <span class="top-menu__label" id="label-language">Language</span>
+                <select
+                  id="lang-select"
+                  class="top-menu__select"
+                  aria-labelledby="label-language"
+                >
+                  <option value="en" selected>English</option>
+                  <option value="es" disabled>Español (soon)</option>
+                  <option value="fr" disabled>Français (soon)</option>
+                </select>
+              </div>
+              <div class="top-menu__row top-menu__row--theme" role="none">
+                <span class="top-menu__label" id="label-theme">Appearance</span>
+                <div class="theme-toggle" role="group" aria-labelledby="label-theme">
+                  <button type="button" class="theme-toggle__btn" data-theme-choice="dark" aria-pressed="true">
+                    Dark
+                  </button>
+                  <button type="button" class="theme-toggle__btn" data-theme-choice="light" aria-pressed="false">
+                    Light
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
+
+      <dialog id="dlg-settings" class="app-dialog">
+        <div class="app-dialog__inner">
+          <h2 class="app-dialog__title">Page settings</h2>
+          <p class="app-dialog__body">
+            Preferences for layout, stream behavior, and notifications will be added here in a future
+            release.
+          </p>
+          <form method="dialog" class="app-dialog__actions">
+            <button type="submit" class="btn btn--primary">Close</button>
+          </form>
+        </div>
+      </dialog>
+
+      <dialog id="dlg-about" class="app-dialog">
+        <div class="app-dialog__inner">
+          <h2 class="app-dialog__title">About WineLedger</h2>
+          <p class="app-dialog__body">
+            WineLedger is a teaching and research-oriented view of a wine supply chain: synthetic events are
+            recorded on a lightweight chain and mapped to generative visuals so provenance and flow are
+            tangible.
+          </p>
+          <form method="dialog" class="app-dialog__actions">
+            <button type="submit" class="btn btn--primary">Close</button>
+          </form>
+        </div>
+      </dialog>
+
+      <dialog id="dlg-project" class="app-dialog">
+        <div class="app-dialog__inner">
+          <h2 class="app-dialog__title">Project info</h2>
+          <p class="app-dialog__body">
+            REST API exposes <code>/chain</code> and <code>/simulate-once</code>; live updates stream over
+            WebSocket <code>/ws</code>. The canvas is driven by Hydra from parameters derived from each block.
+          </p>
+          <form method="dialog" class="app-dialog__actions">
+            <button type="submit" class="btn btn--primary">Close</button>
+          </form>
+        </div>
+      </dialog>
 
       <main id="main" class="app-main">
         <section class="panel panel--visual" aria-labelledby="visual-heading">

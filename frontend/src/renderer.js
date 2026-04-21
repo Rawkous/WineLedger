@@ -1,8 +1,8 @@
 /**
  * Hydra renderer driven by `visual` payloads from the backend mapping layer.
  *
- * The mapping payload becomes a small set of Hydra parameters (osc/noise/kaleid/etc).
- * We rebuild the Hydra chain whenever `visual` changes (events are low frequency).
+ * Hydra's internal buffers use the canvas's width/height at init (defaults to 300×150).
+ * We keep them in sync with the displayed frame via `setResolution` whenever the layout changes.
  */
 
 import Hydra from "hydra-synth";
@@ -26,7 +26,6 @@ function clamp01(x) {
 }
 
 function hsbToRgb(h, s, v) {
-  // h: [0..360), s/v: [0..1] -> r/g/b: [0..1]
   const hh = ((h % 360) + 360) % 360;
   const c = v * s;
   const x = c * (1 - Math.abs(((hh / 60) % 2) - 1));
@@ -43,6 +42,27 @@ function hsbToRgb(h, s, v) {
   return [rp + m, gp + m, bp + m];
 }
 
+function readFrameSize(container) {
+  const rect = container.getBoundingClientRect();
+  return {
+    w: Math.max(1, Math.floor(rect.width)),
+    h: Math.max(1, Math.floor(rect.height)),
+  };
+}
+
+function fallbackSize(container) {
+  const w = Math.max(320, Math.floor(container.clientWidth || 640));
+  const h = Math.max(200, Math.floor((w * 10) / 16));
+  return { w, h };
+}
+
+function applyResolution(w, h) {
+  if (!hydra || typeof hydra.setResolution !== "function") return;
+  if (hydra.width === w && hydra.height === h) return;
+  hydra.setResolution(w, h);
+  rebuildHydraPatch();
+}
+
 function ensureHydra(container) {
   if (hydra && hydraCanvas) return;
 
@@ -50,6 +70,13 @@ function ensureHydra(container) {
   hydraCanvas = document.createElement("canvas");
   hydraCanvas.className = "hydra-canvas";
   container.appendChild(hydraCanvas);
+
+  let { w, h } = readFrameSize(container);
+  if (w < 8 || h < 8) {
+    ({ w, h } = fallbackSize(container));
+  }
+  hydraCanvas.width = w;
+  hydraCanvas.height = h;
 
   hydra = new Hydra({
     canvas: hydraCanvas,
@@ -61,16 +88,15 @@ function ensureHydra(container) {
   rebuildHydraPatch();
 
   const syncCanvasSize = () => {
-    const rect = hydraCanvas.getBoundingClientRect();
-    const w = Math.max(1, Math.floor(rect.width));
-    const h = Math.max(1, Math.floor(rect.height));
-    if (hydraCanvas.width !== w || hydraCanvas.height !== h) {
-      hydraCanvas.width = w;
-      hydraCanvas.height = h;
-    }
+    const { w: nw, h: nh } = readFrameSize(container);
+    if (nw < 2 || nh < 2) return;
+    applyResolution(nw, nh);
   };
 
-  syncCanvasSize();
+  requestAnimationFrame(() => {
+    requestAnimationFrame(syncCanvasSize);
+  });
+
   const ro = new ResizeObserver(syncCanvasSize);
   ro.observe(container);
 }
@@ -86,7 +112,6 @@ function rebuildHydraPatch() {
 
   const [r, g, b] = hsbToRgb(v.hue, Math.min(1, sat * 1.1), bri);
 
-  // Translate WineLedger → Hydra controls.
   const freq = 2 + motion * 10 + (burst / 220) * 6;
   const sync = 0.08 + motion * 0.25;
   const offset = 0.6 + (v.hue % 60) / 120;
@@ -95,7 +120,6 @@ function rebuildHydraPatch() {
   const modAmt = 0.05 + motion * 0.25;
   const noiseScale = 0.8 + motion * 3.2;
 
-  // Hydra API is global when makeGlobal=true.
   // eslint-disable-next-line no-undef
   osc(freq, sync, offset)
     // eslint-disable-next-line no-undef
