@@ -173,6 +173,28 @@
             </button>
           </div>
 
+          <div class="sim-pace">
+            <label for="simulate-pace" class="sim-pace__label">Pause between simulated events</label>
+            <p class="sim-pace__hint">
+              Gives each step time on the canvas before the next (via the API; WebSocket updates still stream in
+              real time).
+            </p>
+            <div class="sim-pace__row">
+              <input
+                id="simulate-pace"
+                type="range"
+                min="0"
+                max="10000"
+                step="250"
+                value="1200"
+                aria-valuemin="0"
+                aria-valuemax="10000"
+                aria-describedby="simulate-pace-value"
+              />
+              <span id="simulate-pace-value" class="sim-pace__value" aria-live="polite">1.2 s</span>
+            </div>
+          </div>
+
           <div id="ledger" class="ledger" role="feed" aria-label="Blockchain ledger entries"></div>
         </aside>
       </main>

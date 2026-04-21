@@ -1,7 +1,8 @@
+import asyncio
 import os
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from .geo_enrichment import GeoEnrichmentService, SqliteGeoCache
@@ -46,12 +47,21 @@ def get_chain(request: Request) -> dict:
 
 
 @app.get("/simulate-once")
-async def simulate_once(request: Request) -> dict:
+async def simulate_once(
+    request: Request,
+    pace_ms: int = Query(
+        default=0,
+        ge=0,
+        le=120_000,
+        description="Pause between each supply-chain event (ms) so WebSocket clients can show visuals longer.",
+    ),
+) -> dict:
     blockchain = request.app.state.blockchain
     geo = request.app.state.geo
     events = simulate_supply_chain()
     out = []
-    for event in events:
+    pace_sec = pace_ms / 1000.0
+    for i, event in enumerate(events):
         prev = blockchain.chain[-1].event
         prev_loc = None if prev.event_type == "GENESIS" else prev.location
         enriched = geo.enrich(event, prev_loc)
@@ -59,4 +69,6 @@ async def simulate_once(request: Request) -> dict:
         await manager.broadcast_json(block_message_payload(block))
         vis = event_to_visual_params(block.event)
         out.append(BlockPayloadSchema(block=block_to_schema(block), visual=vis).model_dump(mode="json"))
+        if pace_sec > 0 and i < len(events) - 1:
+            await asyncio.sleep(pace_sec)
     return SimulateOnceResponseSchema(valid_chain=blockchain.is_valid(), blocks=out).model_dump(mode="json")

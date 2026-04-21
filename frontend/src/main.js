@@ -4,6 +4,7 @@ import { appendLedgerBlock, renderLedger } from "./ui.js";
 
 const THEME_KEY = "wineledger-theme";
 const LANG_KEY = "wineledger-lang";
+const SIM_PACE_KEY = "wineledger-sim-pace-ms";
 
 const canvasRoot = document.getElementById("canvas-root");
 const ledgerEl = document.getElementById("ledger");
@@ -13,6 +14,8 @@ const refreshBtn = document.getElementById("refresh-chain");
 const connStatusEl = document.getElementById("conn-status");
 const visualLabelEl = document.getElementById("visual-label");
 const themeColorMeta = document.getElementById("theme-color-meta");
+const paceSlider = document.getElementById("simulate-pace");
+const paceValueEl = document.getElementById("simulate-pace-value");
 
 const menuToggle = document.getElementById("menu-toggle");
 const menuPanel = document.getElementById("top-menu-panel");
@@ -186,10 +189,60 @@ connectLedgerSocket({
   onConnectionChange: setConnectionUi,
 });
 
+function formatSimPace(ms) {
+  if (ms <= 0) return "Off";
+  if (ms < 1000) return `${ms} ms`;
+  const s = ms / 1000;
+  const t = s >= 10 ? s.toFixed(0) : s.toFixed(1).replace(/\.0$/, "");
+  return `${t} s`;
+}
+
+function clampPaceSlider() {
+  if (!paceSlider) return 0;
+  const max = parseInt(paceSlider.getAttribute("max") || "10000", 10);
+  let v = parseInt(paceSlider.value, 10);
+  if (Number.isNaN(v)) v = 0;
+  v = Math.max(0, Math.min(max, v));
+  paceSlider.value = String(v);
+  return v;
+}
+
+function updatePaceLabel() {
+  if (!paceValueEl || !paceSlider) return;
+  paceValueEl.textContent = formatSimPace(clampPaceSlider());
+}
+
+function loadStoredSimPace() {
+  try {
+    const raw = localStorage.getItem(SIM_PACE_KEY);
+    if (raw == null || !paceSlider) return;
+    const n = parseInt(raw, 10);
+    if (Number.isNaN(n)) return;
+    const max = parseInt(paceSlider.getAttribute("max") || "10000", 10);
+    paceSlider.value = String(Math.max(0, Math.min(max, n)));
+  } catch {
+    /* ignore */
+  }
+  updatePaceLabel();
+}
+
+loadStoredSimPace();
+
+paceSlider?.addEventListener("input", () => {
+  updatePaceLabel();
+  try {
+    localStorage.setItem(SIM_PACE_KEY, paceSlider.value);
+  } catch {
+    /* ignore */
+  }
+});
+
 simulateBtn?.addEventListener("click", async () => {
   simulateBtn.disabled = true;
   try {
-    await fetch("/simulate-once");
+    const paceMs = clampPaceSlider();
+    const q = paceMs > 0 ? `?pace_ms=${encodeURIComponent(String(paceMs))}` : "";
+    await fetch(`/simulate-once${q}`);
     const chain = await fetch("/chain").then((r) => r.json());
     applyChainBlocks(chain.blocks || []);
   } finally {

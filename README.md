@@ -69,7 +69,7 @@ Older docs that referred to `backend/app/` described the same code; the live tre
 |--------|------|-------------|
 | GET | `/health` | Liveness |
 | GET | `/chain` | Full chain with `block` + `visual` per entry |
-| GET | `/simulate-once` | Runs one synthetic chain segment, adds blocks, enriches geo, **broadcasts each block** on `/ws` |
+| GET | `/simulate-once` | Runs one synthetic chain segment, adds blocks, enriches geo, **broadcasts each block** on `/ws`. Optional query `pace_ms` (0–120000): pause in milliseconds **between** events so visuals stay on screen longer. |
 | WS | `/ws` | Initial `chain_snapshot`, then `block` messages when new blocks are added |
 
 ## Local development
