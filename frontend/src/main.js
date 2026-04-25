@@ -6,6 +6,15 @@ const THEME_KEY = "wineledger-theme";
 const LANG_KEY = "wineledger-lang";
 const SIM_PACE_KEY = "wineledger-sim-pace-ms";
 
+const TRACKED_STAGES = [
+  "HARVEST",
+  "FERMENTATION",
+  "BARREL_AGING",
+  "BOTTLING",
+  "TRANSPORT",
+  "RETAIL",
+];
+
 const canvasRoot = document.getElementById("canvas-root");
 const ledgerEl = document.getElementById("ledger");
 const ledgerCountEl = document.getElementById("ledger-count");
@@ -21,6 +30,16 @@ const menuToggle = document.getElementById("menu-toggle");
 const menuPanel = document.getElementById("top-menu-panel");
 const langSelect = document.getElementById("lang-select");
 const themeButtons = document.querySelectorAll(".theme-toggle__btn");
+const siteHeader = document.querySelector(".site-header");
+
+const heroStatBlocksEl = document.querySelector('[data-stat="blocks"]');
+const heroStatStreamEl = document.querySelector('[data-stat="stream"]');
+
+const stageCountEls = new Map();
+TRACKED_STAGES.forEach((stage) => {
+  const el = document.querySelector(`[data-stage-count="${stage}"]`);
+  if (el) stageCountEls.set(stage, el);
+});
 
 mountRenderer(canvasRoot);
 
@@ -33,7 +52,7 @@ function setTheme(theme) {
     /* ignore */
   }
   if (themeColorMeta) {
-    themeColorMeta.setAttribute("content", next === "light" ? "#f7f3ec" : "#1c120c");
+    themeColorMeta.setAttribute("content", next === "light" ? "#f5efe2" : "#140c08");
   }
   themeButtons.forEach((btn) => {
     const pressed = btn.getAttribute("data-theme-choice") === next;
@@ -88,7 +107,7 @@ menuPanel?.addEventListener("click", (e) => {
   e.stopPropagation();
 });
 
-menuPanel?.querySelectorAll("[data-open-dialog]").forEach((btn) => {
+document.querySelectorAll("[data-open-dialog]").forEach((btn) => {
   btn.addEventListener("click", () => {
     const id = btn.getAttribute("data-open-dialog");
     const dlg = id ? document.getElementById(id) : null;
@@ -136,10 +155,92 @@ themeButtons.forEach((btn) => {
   });
 });
 
+/* ---------- Sticky header elevation on scroll ---------- */
+
+function updateHeaderElevation() {
+  if (!siteHeader) return;
+  const elevated = window.scrollY > 8;
+  siteHeader.dataset.elevated = elevated ? "true" : "false";
+}
+
+updateHeaderElevation();
+window.addEventListener("scroll", updateHeaderElevation, { passive: true });
+
+/* ---------- Active primary-nav section ---------- */
+
+const navLinks = Array.from(document.querySelectorAll(".primary-nav__link"));
+const sectionLinkMap = new Map();
+navLinks.forEach((link) => {
+  const href = link.getAttribute("href") || "";
+  if (href.startsWith("#")) {
+    const id = href.slice(1);
+    const target = id ? document.getElementById(id) : null;
+    if (target) sectionLinkMap.set(target, link);
+  }
+});
+
+if (sectionLinkMap.size > 0 && "IntersectionObserver" in window) {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries
+        .filter((e) => e.isIntersecting)
+        .forEach((entry) => {
+          navLinks.forEach((l) => l.removeAttribute("aria-current"));
+          const link = sectionLinkMap.get(entry.target);
+          if (link) link.setAttribute("aria-current", "true");
+        });
+    },
+    { rootMargin: "-40% 0px -55% 0px", threshold: 0 },
+  );
+  sectionLinkMap.forEach((_, target) => observer.observe(target));
+}
+
+/* ---------- Ledger + stage stats ---------- */
+
 function setLedgerCount(n) {
-  if (!ledgerCountEl) return;
-  const label = n === 1 ? "1 entry" : `${n} entries`;
-  ledgerCountEl.textContent = label;
+  if (ledgerCountEl) {
+    ledgerCountEl.textContent = n === 1 ? "1 entry" : `${n} entries`;
+  }
+  if (heroStatBlocksEl) {
+    heroStatBlocksEl.textContent = String(n);
+  }
+}
+
+function flashStageCount(el) {
+  if (!el) return;
+  el.dataset.justChanged = "true";
+  window.setTimeout(() => {
+    if (el.dataset.justChanged === "true") delete el.dataset.justChanged;
+  }, 700);
+}
+
+function setStageCount(stage, count) {
+  const el = stageCountEls.get(stage);
+  if (!el) return;
+  const previous = parseInt(el.textContent || "0", 10) || 0;
+  el.textContent = String(count);
+  el.dataset.active = count > 0 ? "true" : "false";
+  if (count !== previous) flashStageCount(el);
+}
+
+function recountStagesFromBlocks(blocks) {
+  const counts = new Map(TRACKED_STAGES.map((s) => [s, 0]));
+  for (const item of blocks) {
+    const t = item?.block?.event?.event_type;
+    if (typeof t === "string" && counts.has(t)) {
+      counts.set(t, (counts.get(t) || 0) + 1);
+    }
+  }
+  TRACKED_STAGES.forEach((s) => setStageCount(s, counts.get(s) || 0));
+}
+
+function bumpStageFromBlock(payload) {
+  const t = payload?.block?.event?.event_type;
+  if (typeof t !== "string" || !stageCountEls.has(t)) return;
+  const el = stageCountEls.get(t);
+  if (!el) return;
+  const current = parseInt(el.textContent || "0", 10) || 0;
+  setStageCount(t, current + 1);
 }
 
 function updateVisualCaption(payload) {
@@ -150,23 +251,35 @@ function updateVisualCaption(payload) {
 }
 
 function setConnectionUi(state) {
-  if (!connStatusEl) return;
-  connStatusEl.dataset.state = state;
-  const label = connStatusEl.querySelector(".conn-status__label");
-  if (!label) return;
-  const messages = {
-    connecting: "Connecting…",
-    open: "Live stream",
-    closed: "Reconnecting…",
-    error: "Connection issue",
-  };
-  label.textContent = messages[state] || state;
+  if (connStatusEl) {
+    connStatusEl.dataset.state = state;
+    const label = connStatusEl.querySelector(".conn-status__label");
+    if (label) {
+      const messages = {
+        connecting: "Connecting…",
+        open: "Live stream",
+        closed: "Reconnecting…",
+        error: "Connection issue",
+      };
+      label.textContent = messages[state] || state;
+    }
+  }
+  if (heroStatStreamEl) {
+    const messages = {
+      connecting: "Connecting",
+      open: "Live",
+      closed: "Reconnecting",
+      error: "Issue",
+    };
+    heroStatStreamEl.textContent = messages[state] || state;
+  }
 }
 
 function applyChainBlocks(blocks) {
   const list = Array.isArray(blocks) ? blocks : [];
   renderLedger(ledgerEl, list);
   setLedgerCount(list.length);
+  recountStagesFromBlocks(list);
   const last = list[list.length - 1];
   if (last) {
     applyBlockPayload(last);
@@ -184,10 +297,13 @@ connectLedgerSocket({
       updateVisualCaption(msg.payload);
       const n = appendLedgerBlock(ledgerEl, msg.payload);
       if (n > 0) setLedgerCount(n);
+      bumpStageFromBlock(msg.payload);
     }
   },
   onConnectionChange: setConnectionUi,
 });
+
+/* ---------- Sim-pace control ---------- */
 
 function formatSimPace(ms) {
   if (ms <= 0) return "Off";

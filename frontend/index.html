@@ -3,98 +3,131 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta id="theme-color-meta" name="theme-color" content="#1c120c" />
+    <meta id="theme-color-meta" name="theme-color" content="#140c08" />
     <meta
       name="description"
       content="WineLedger — supply chain events on a living ledger, rendered as generative art."
     />
-    <title>WineLedger</title>
+    <title>WineLedger · Provenance, painted in real time</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Source+Sans+3:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Source+Sans+3:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/src/styles.css" />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to main content</a>
-    <div id="app" class="app">
-      <header class="app-header" role="banner">
-        <div class="brand">
-          <span class="brand-mark" aria-hidden="true"></span>
-          <div class="brand-text">
-            <h1 class="brand-title">WineLedger</h1>
-            <p class="brand-tagline">
-              From vineyard to glass — each supply chain event etched on the ledger and
-              expressed as living generative art.
-            </p>
-          </div>
-        </div>
-        <div class="header-actions">
-          <div
-            id="conn-status"
-            class="conn-status"
-            role="status"
-            aria-live="polite"
-            data-state="connecting"
-          >
-            <span class="conn-status__dot" aria-hidden="true"></span>
-            <span class="conn-status__label">Connecting…</span>
-          </div>
 
-          <div class="top-menu">
-            <button
-              type="button"
-              id="menu-toggle"
-              class="menu-toggle"
-              aria-expanded="false"
-              aria-haspopup="true"
-              aria-controls="top-menu-panel"
-            >
-              <span class="menu-toggle__icon" aria-hidden="true">☰</span>
-              Menu
-            </button>
+    <div id="app" class="app">
+      <header class="site-header" role="banner" data-elevated="false">
+        <div class="site-header__inner">
+          <a href="#top" class="brand" aria-label="WineLedger — return to top">
+            <span class="brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 32 32" focusable="false" aria-hidden="true">
+                <path
+                  d="M9 4 H23 L21.5 13 A6 6 0 0 1 10.5 13 Z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linejoin="round"
+                />
+                <path d="M16 19 V27" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                <path d="M11 28 H21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                <circle cx="16" cy="9" r="1.4" fill="currentColor" />
+              </svg>
+            </span>
+            <span class="brand-name">
+              <span class="brand-name__primary">Wine</span><span class="brand-name__accent">Ledger</span>
+            </span>
+          </a>
+
+          <nav class="primary-nav" aria-label="Primary">
+            <a href="#canvas-section" class="primary-nav__link">Living Canvas</a>
+            <a href="#stages-section" class="primary-nav__link">Stages</a>
+            <a href="#ledger-section" class="primary-nav__link">Ledger</a>
+            <a href="/wine-journey.html" class="primary-nav__link primary-nav__link--external">Journey</a>
+          </nav>
+
+          <div class="site-header__actions">
             <div
-              id="top-menu-panel"
-              class="top-menu__panel"
-              role="menu"
-              aria-labelledby="menu-toggle"
-              hidden
+              id="conn-status"
+              class="conn-status"
+              role="status"
+              aria-live="polite"
+              data-state="connecting"
             >
-              <button type="button" class="top-menu__item" role="menuitem" data-open-dialog="dlg-settings">
-                Page settings
-              </button>
-              <button type="button" class="top-menu__item" role="menuitem" data-open-dialog="dlg-about">
-                About
-              </button>
-              <button type="button" class="top-menu__item" role="menuitem" data-open-dialog="dlg-project">
-                Project info
-              </button>
-              <a href="/wine-journey.html" class="top-menu__item top-menu__link" role="menuitem"
-                >Wine journey (learn)</a
+              <span class="conn-status__dot" aria-hidden="true"></span>
+              <span class="conn-status__label">Connecting…</span>
+            </div>
+
+            <div class="top-menu">
+              <button
+                type="button"
+                id="menu-toggle"
+                class="menu-toggle"
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-controls="top-menu-panel"
+                aria-label="Open menu"
               >
-              <div class="top-menu__row" role="none">
-                <span class="top-menu__label" id="label-language">Language</span>
-                <select
-                  id="lang-select"
-                  class="top-menu__select"
-                  aria-labelledby="label-language"
-                >
-                  <option value="en" selected>English</option>
-                  <option value="es" disabled>Español (soon)</option>
-                  <option value="fr" disabled>Français (soon)</option>
-                </select>
-              </div>
-              <div class="top-menu__row top-menu__row--theme" role="none">
-                <span class="top-menu__label" id="label-theme">Appearance</span>
-                <div class="theme-toggle" role="group" aria-labelledby="label-theme">
-                  <button type="button" class="theme-toggle__btn" data-theme-choice="dark" aria-pressed="true">
-                    Dark
-                  </button>
-                  <button type="button" class="theme-toggle__btn" data-theme-choice="light" aria-pressed="false">
-                    Light
-                  </button>
+                <span class="menu-toggle__icon" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </span>
+                <span class="menu-toggle__label">Menu</span>
+              </button>
+              <div
+                id="top-menu-panel"
+                class="top-menu__panel"
+                role="menu"
+                aria-labelledby="menu-toggle"
+                hidden
+              >
+                <button type="button" class="top-menu__item" role="menuitem" data-open-dialog="dlg-settings">
+                  Page settings
+                </button>
+                <button type="button" class="top-menu__item" role="menuitem" data-open-dialog="dlg-about">
+                  About WineLedger
+                </button>
+                <button type="button" class="top-menu__item" role="menuitem" data-open-dialog="dlg-project">
+                  Project info
+                </button>
+                <a href="/wine-journey.html" class="top-menu__item top-menu__link" role="menuitem">
+                  Wine journey (learn)
+                </a>
+                <div class="top-menu__row" role="none">
+                  <span class="top-menu__label" id="label-language">Language</span>
+                  <select
+                    id="lang-select"
+                    class="top-menu__select"
+                    aria-labelledby="label-language"
+                  >
+                    <option value="en" selected>English</option>
+                    <option value="es" disabled>Español (soon)</option>
+                    <option value="fr" disabled>Français (soon)</option>
+                  </select>
+                </div>
+                <div class="top-menu__row top-menu__row--theme" role="none">
+                  <span class="top-menu__label" id="label-theme">Appearance</span>
+                  <div class="theme-toggle" role="group" aria-labelledby="label-theme">
+                    <button
+                      type="button"
+                      class="theme-toggle__btn"
+                      data-theme-choice="dark"
+                      aria-pressed="true"
+                    >
+                      Cellar
+                    </button>
+                    <button
+                      type="button"
+                      class="theme-toggle__btn"
+                      data-theme-choice="light"
+                      aria-pressed="false"
+                    >
+                      Tasting
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -107,7 +140,8 @@
           <h2 class="app-dialog__title">Page settings</h2>
           <p class="app-dialog__body">
             Preferences for layout, stream behavior, and notifications will be added here in a future
-            release.
+            release. For now, use <em>Appearance</em> in the menu to switch between the
+            <strong>Cellar</strong> and <strong>Tasting</strong> palettes.
           </p>
           <form method="dialog" class="app-dialog__actions">
             <button type="submit" class="btn btn--primary">Close</button>
@@ -121,7 +155,7 @@
           <p class="app-dialog__body">
             WineLedger is a teaching and research-oriented view of a wine supply chain: synthetic events are
             recorded on a lightweight chain and mapped to generative visuals so provenance and flow are
-            tangible.
+            tangible. From <strong>harvest</strong> to <strong>retail</strong>, every block is a brushstroke.
           </p>
           <form method="dialog" class="app-dialog__actions">
             <button type="submit" class="btn btn--primary">Close</button>
@@ -134,7 +168,9 @@
           <h2 class="app-dialog__title">Project info</h2>
           <p class="app-dialog__body">
             REST API exposes <code>/chain</code> and <code>/simulate-once</code>; live updates stream over
-            WebSocket <code>/ws</code>. The canvas is driven by Hydra from parameters derived from each block.
+            WebSocket <code>/ws</code>. The canvas is driven by Hydra from parameters derived from each
+            block. The <a href="/wine-journey.html">Wine journey</a> page connects the simulated stages to
+            real-world wine production.
           </p>
           <form method="dialog" class="app-dialog__actions">
             <button type="submit" class="btn btn--primary">Close</button>
@@ -143,45 +179,208 @@
       </dialog>
 
       <main id="main" class="app-main">
-        <section class="panel panel--visual" aria-labelledby="visual-heading">
-          <div class="panel__head">
-            <h2 id="visual-heading" class="panel__title">Living canvas</h2>
-            <p class="panel__hint">
-              Streamed events reshape color, motion, and rhythm — transparency you can see.
-            </p>
+        <section id="top" class="hero" aria-labelledby="hero-title">
+          <div class="hero__bg" aria-hidden="true">
+            <div class="hero__bg-glow hero__bg-glow--burgundy"></div>
+            <div class="hero__bg-glow hero__bg-glow--vine"></div>
+            <div class="hero__bg-grain"></div>
           </div>
-          <div id="canvas-root" class="canvas-frame" aria-label="Generative visual canvas"></div>
-          <div class="visual-caption">
-            <p id="visual-label" class="visual-label" aria-live="polite">Waiting for events…</p>
-            <p class="visual-caption__sub">
-              Run a simulation or connect another client; new blocks update this view in real time.
+          <div class="hero__inner">
+            <p class="eyebrow eyebrow--gold">From vine to ledger</p>
+            <h1 id="hero-title" class="hero__title">
+              Provenance, painted in <em>real time</em>.
+            </h1>
+            <p class="hero__lead">
+              A living digital twin of the wine supply chain. Every harvest, fermentation, and shipment
+              becomes a block on a lightweight chain — and a brushstroke on a generative canvas. Watch
+              transparency take shape.
             </p>
+            <div class="hero__actions">
+              <button id="simulate" type="button" class="btn btn--primary btn--lg">
+                <span class="btn__icon" aria-hidden="true">◇</span>
+                Simulate supply chain
+              </button>
+              <a href="/wine-journey.html" class="btn btn--ghost btn--lg">
+                Explore the journey
+                <span class="btn__icon btn__icon--right" aria-hidden="true">→</span>
+              </a>
+            </div>
+            <dl class="hero__stats" aria-label="Live ledger stats">
+              <div class="hero__stat">
+                <dt>On-chain blocks</dt>
+                <dd id="hero-stat-blocks" data-stat="blocks">0</dd>
+              </div>
+              <div class="hero__stat">
+                <dt>Stages tracked</dt>
+                <dd id="hero-stat-stages" data-stat="stages">6</dd>
+              </div>
+              <div class="hero__stat">
+                <dt>Stream</dt>
+                <dd id="hero-stat-stream" data-stat="stream">Connecting…</dd>
+              </div>
+            </dl>
           </div>
         </section>
 
-        <aside class="panel panel--side" aria-labelledby="ledger-heading">
-          <div class="panel__head panel__head--row">
-            <h2 id="ledger-heading" class="panel__title">Ledger</h2>
-            <span id="ledger-count" class="ledger-count" aria-live="polite">0 entries</span>
-          </div>
-
-          <div class="action-bar" role="group" aria-label="Ledger actions">
-            <button id="simulate" type="button" class="btn btn--primary">
-              <span class="btn__icon" aria-hidden="true">◇</span>
-              Simulate supply chain
-            </button>
-            <button id="refresh-chain" type="button" class="btn btn--ghost">
-              <span class="btn__icon" aria-hidden="true">↻</span>
-              Load chain
-            </button>
-          </div>
-
-          <div class="sim-pace">
-            <label for="simulate-pace" class="sim-pace__label">Pause between simulated events</label>
-            <p class="sim-pace__hint">
-              Gives each step time on the canvas before the next (via the API; WebSocket updates still stream in
-              real time).
+        <section
+          id="canvas-section"
+          class="section section--canvas"
+          aria-labelledby="canvas-title"
+        >
+          <header class="section-head">
+            <p class="eyebrow">Living canvas</p>
+            <h2 id="canvas-title" class="section-title">Each block, a brushstroke</h2>
+            <p class="section-hint">
+              Streamed events reshape color, motion, and rhythm. Run a simulation or connect another client
+              and the canvas responds in real time.
             </p>
+          </header>
+
+          <figure class="canvas-stage">
+            <div id="canvas-root" class="canvas-frame" aria-label="Generative visual canvas"></div>
+            <figcaption class="canvas-overlay">
+              <p class="canvas-overlay__eyebrow">Now showing</p>
+              <p id="visual-label" class="canvas-overlay__title" aria-live="polite">
+                Waiting for events…
+              </p>
+              <p class="canvas-overlay__sub">
+                Run a simulation below or connect another client; new blocks update this view in real time.
+              </p>
+            </figcaption>
+          </figure>
+        </section>
+
+        <section
+          id="stages-section"
+          class="section section--stages"
+          aria-labelledby="stages-title"
+        >
+          <header class="section-head">
+            <p class="eyebrow">Supply chain</p>
+            <h2 id="stages-title" class="section-title">Six stages from grape to glass</h2>
+            <p class="section-hint">
+              Each simulated bottle's journey appends six blocks. Counts update live as new events stream
+              in.
+            </p>
+          </header>
+
+          <ol class="stages-grid" role="list">
+            <li class="stage-tile" data-stage="HARVEST" data-tone="harvest">
+              <div class="stage-tile__head">
+                <span class="stage-tile__num">01</span>
+                <span class="stage-tile__count" data-stage-count="HARVEST" aria-label="HARVEST events">
+                  0
+                </span>
+              </div>
+              <h3 class="stage-tile__name">Harvest</h3>
+              <p class="stage-tile__hint">Pick &amp; sort the fruit</p>
+            </li>
+            <li class="stage-tile" data-stage="FERMENTATION" data-tone="fermentation">
+              <div class="stage-tile__head">
+                <span class="stage-tile__num">02</span>
+                <span
+                  class="stage-tile__count"
+                  data-stage-count="FERMENTATION"
+                  aria-label="FERMENTATION events"
+                >
+                  0
+                </span>
+              </div>
+              <h3 class="stage-tile__name">Fermentation</h3>
+              <p class="stage-tile__hint">Sugar becomes wine</p>
+            </li>
+            <li class="stage-tile" data-stage="BARREL_AGING" data-tone="barrel">
+              <div class="stage-tile__head">
+                <span class="stage-tile__num">03</span>
+                <span
+                  class="stage-tile__count"
+                  data-stage-count="BARREL_AGING"
+                  aria-label="BARREL AGING events"
+                >
+                  0
+                </span>
+              </div>
+              <h3 class="stage-tile__name">Barrel aging</h3>
+              <p class="stage-tile__hint">Oak, oxygen, time</p>
+            </li>
+            <li class="stage-tile" data-stage="BOTTLING" data-tone="bottling">
+              <div class="stage-tile__head">
+                <span class="stage-tile__num">04</span>
+                <span
+                  class="stage-tile__count"
+                  data-stage-count="BOTTLING"
+                  aria-label="BOTTLING events"
+                >
+                  0
+                </span>
+              </div>
+              <h3 class="stage-tile__name">Bottling</h3>
+              <p class="stage-tile__hint">Identity meets label</p>
+            </li>
+            <li class="stage-tile" data-stage="TRANSPORT" data-tone="transport">
+              <div class="stage-tile__head">
+                <span class="stage-tile__num">05</span>
+                <span
+                  class="stage-tile__count"
+                  data-stage-count="TRANSPORT"
+                  aria-label="TRANSPORT events"
+                >
+                  0
+                </span>
+              </div>
+              <h3 class="stage-tile__name">Transport</h3>
+              <p class="stage-tile__hint">Cellar to corridor</p>
+            </li>
+            <li class="stage-tile" data-stage="RETAIL" data-tone="retail">
+              <div class="stage-tile__head">
+                <span class="stage-tile__num">06</span>
+                <span
+                  class="stage-tile__count"
+                  data-stage-count="RETAIL"
+                  aria-label="RETAIL events"
+                >
+                  0
+                </span>
+              </div>
+              <h3 class="stage-tile__name">Retail</h3>
+              <p class="stage-tile__hint">The last mile, the glass</p>
+            </li>
+          </ol>
+        </section>
+
+        <section
+          id="ledger-section"
+          class="section section--ledger"
+          aria-labelledby="ledger-title"
+        >
+          <header class="section-head section-head--row">
+            <div>
+              <p class="eyebrow">Ledger</p>
+              <h2 id="ledger-title" class="section-title">Stories on chain</h2>
+              <p class="section-hint">
+                Every block is an immutable record — region, route, hash. Newest entries appear at the
+                bottom.
+              </p>
+            </div>
+            <div class="ledger-meta" aria-label="Ledger summary">
+              <span id="ledger-count" class="ledger-count" aria-live="polite">0 entries</span>
+              <button id="refresh-chain" type="button" class="btn btn--ghost btn--sm">
+                <span class="btn__icon" aria-hidden="true">↻</span>
+                Reload chain
+              </button>
+            </div>
+          </header>
+
+          <div class="sim-pace" aria-labelledby="sim-pace-label">
+            <div class="sim-pace__text">
+              <span class="sim-pace__label" id="sim-pace-label">
+                Pause between simulated events
+              </span>
+              <p class="sim-pace__hint">
+                Gives each step time on the canvas before the next (via the API; WebSocket updates still
+                stream in real time).
+              </p>
+            </div>
             <div class="sim-pace__row">
               <input
                 id="simulate-pace"
@@ -193,20 +392,97 @@
                 aria-valuemin="0"
                 aria-valuemax="10000"
                 aria-describedby="simulate-pace-value"
+                aria-labelledby="sim-pace-label"
               />
               <span id="simulate-pace-value" class="sim-pace__value" aria-live="polite">1.2 s</span>
             </div>
           </div>
 
           <div id="ledger" class="ledger" role="feed" aria-label="Blockchain ledger entries"></div>
-        </aside>
+        </section>
       </main>
 
-      <footer class="app-footer">
-        <p>
-          WineLedger · REST <code>/chain</code> · WebSocket <code>/ws</code> · Generative layer via
-          Hydra · <a href="/wine-journey.html">Wine journey</a> (education)
-        </p>
+      <footer class="site-footer" role="contentinfo">
+        <div class="site-footer__inner">
+          <div class="site-footer__brand">
+            <div class="brand brand--footer">
+              <span class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 32 32" focusable="false" aria-hidden="true">
+                  <path
+                    d="M9 4 H23 L21.5 13 A6 6 0 0 1 10.5 13 Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M16 19 V27"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M11 28 H21"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                  />
+                  <circle cx="16" cy="9" r="1.4" fill="currentColor" />
+                </svg>
+              </span>
+              <span class="brand-name">
+                <span class="brand-name__primary">Wine</span><span class="brand-name__accent">Ledger</span>
+              </span>
+            </div>
+            <p class="site-footer__tagline">
+              From vineyard to glass — each supply-chain event etched on the ledger and expressed as living
+              generative art.
+            </p>
+          </div>
+
+          <nav class="site-footer__col" aria-label="Explore">
+            <h3 class="site-footer__heading">Explore</h3>
+            <a href="#canvas-section">Living canvas</a>
+            <a href="#stages-section">Supply chain stages</a>
+            <a href="#ledger-section">Ledger feed</a>
+            <a href="/wine-journey.html">Wine journey</a>
+          </nav>
+
+          <nav class="site-footer__col" aria-label="Project">
+            <h3 class="site-footer__heading">Project</h3>
+            <button type="button" class="site-footer__link" data-open-dialog="dlg-about">
+              About WineLedger
+            </button>
+            <button type="button" class="site-footer__link" data-open-dialog="dlg-project">
+              Project info
+            </button>
+            <button type="button" class="site-footer__link" data-open-dialog="dlg-settings">
+              Page settings
+            </button>
+          </nav>
+
+          <div class="site-footer__cta">
+            <h3 class="site-footer__heading">Stay close to the chain</h3>
+            <p>
+              Follow each bottle's path from harvest to retail through paired classroom-friendly notes and
+              live visuals.
+            </p>
+            <a href="/wine-journey.html" class="btn btn--primary btn--sm">
+              Open the wine journey
+              <span class="btn__icon btn__icon--right" aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="site-footer__bottom">
+          <p>
+            © 2026 WineLedger · REST <code>/chain</code> · WebSocket <code>/ws</code> · Generative layer
+            via Hydra
+          </p>
+          <p class="site-footer__credits">
+            A teaching &amp; research artifact — built for CENIC AIR, NRP, and NDR-friendly deployment.
+          </p>
+        </div>
       </footer>
     </div>
     <script type="module" src="/src/main.js"></script>
