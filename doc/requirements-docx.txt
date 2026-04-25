@@ -1,0 +1,2 @@
+# Optional: only needed to rebuild proposal-wineledger-winery-2026.docx from the .md
+python-docx>=1.1.0
