@@ -1,8 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta id="theme-color-meta" name="theme-color" content="#f5efe2" />
+    <script>
+      (function () {
+        var THEME_KEY = "wineledger-theme";
+        var LANG_KEY = "wineledger-lang";
+        var VALID_LANGS = ["en", "es", "fr"];
+
+        var theme = "light";
+        var lang = null;
+        try {
+          var storedTheme = localStorage.getItem(THEME_KEY);
+          if (storedTheme === "light" || storedTheme === "dark") theme = storedTheme;
+          var storedLang = localStorage.getItem(LANG_KEY);
+          if (storedLang && VALID_LANGS.indexOf(storedLang) !== -1) lang = storedLang;
+        } catch (e) {}
+
+        document.documentElement.dataset.theme = theme;
+        if (lang) document.documentElement.lang = lang;
+
+        var meta = document.getElementById("theme-color-meta");
+        if (meta) meta.setAttribute("content", theme === "light" ? "#f5efe2" : "#140c08");
+      })();
+    </script>
     <meta
       name="description"
       content="From vineyard to glass: how wine is made, aligned with WineLedger's supply-chain simulation."
@@ -245,5 +268,32 @@
         </p>
       </footer>
     </div>
+    <script>
+      (function () {
+        var THEME_KEY = "wineledger-theme";
+        var LANG_KEY = "wineledger-lang";
+        var VALID_LANGS = ["en", "es", "fr"];
+        var meta = document.getElementById("theme-color-meta");
+
+        function syncMeta(theme) {
+          if (!meta) return;
+          meta.setAttribute("content", theme === "light" ? "#f5efe2" : "#140c08");
+        }
+
+        window.addEventListener("storage", function (ev) {
+          if (ev.newValue == null) return;
+          if (ev.key === THEME_KEY) {
+            if (ev.newValue === "light" || ev.newValue === "dark") {
+              document.documentElement.dataset.theme = ev.newValue;
+              syncMeta(ev.newValue);
+            }
+          } else if (ev.key === LANG_KEY) {
+            if (VALID_LANGS.indexOf(ev.newValue) !== -1) {
+              document.documentElement.lang = ev.newValue;
+            }
+          }
+        });
+      })();
+    </script>
   </body>
 </html>

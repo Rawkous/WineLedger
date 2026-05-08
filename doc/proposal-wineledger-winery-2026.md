@@ -1,7 +1,7 @@
-# WineLedger — Project Documentation and Winery Proposal
+# WineLedger — Winery Proposal (Cardano Route)
 
 **Prepared for:** [Winery / stakeholder contact — relay to shareholders]  
-**Date:** April 23, 2026  
+**Date:** May 7, 2026  
 **Project team:** Brian Axel Martinez (project lead), Gabriel Cruz Chavez (collaborator)  
 **Repository:** https://github.com/Rawkous/WineLedger.git  
 
@@ -27,56 +27,70 @@ The **front end** is a modern static app (**Vite**) that talks to the API. **p5.
 
 ---
 
-## Why we are anchoring the public record on an Ethereum Layer 2
+## Why we are anchoring the public record on Cardano
 
-In our roadmap, the next move is an **EVM**-compatible **Layer 2 (L2)** network: a rollup that sits on top of Ethereum, inherits its security model in broad terms, and gives us **much lower and steadier** costs for the operations we need—storing a **Merkle root**, a **commitment to a batch of events**, or a **pointer** to a file that holds the full story.
+In our roadmap, the next move is to anchor the WineLedger story to **Cardano** in a way that is:
 
-**We are standardizing on Base** as the L2 for on-chain work. It is an EVM chain we can use with the same tools we already use (including **Solidity**), with fees that stay **practical** for scheduled anchoring and for optional **NFT** mints, without asking a winery to pay mainnet prices for day-to-day integrity.
+- **Simple to explain:** the detailed history remains in WineLedger; Cardano holds **verifiable public anchors** and (optionally) **digital assets** that point to that history.
+- **Cost-aware and sustainable:** we do not need “one transaction per sensor row.” We batch, anchor at milestones, and use the right on-chain primitive for the job.
+- **Standards-first:** we use established Cardano Improvement Proposals (CIPs) so wallets, explorers, and marketplaces can interpret the assets without custom glue.
 
-**We want to be clear:** we do *not* need to post every field-level sensor row on the chain. We will keep the **authoritative, detailed** history in the WineLedger service and in durable storage; we will use the **L2** for **verifiable commitments** (and, if you want them, **ownership** of digital collectibles) so that a neutral observer can check that a given export or public story matches a **time-stamped** on-chain record.
-
----
-
-## How we use Solidity on Base (our own smart contracts)
-
-We write contracts in **Solidity** for EVM networks such as Base. We will ship **our own** small, auditable set of contracts instead of depending on generic third-party dApps for the core story. The design stays easy to explain: **on-chain, we store the “seals” and the “tickets”; off-chain, we store the full book.**
-
-We will deploy a **provenance / anchor contract** in Solidity to record **commitments** from the running service—for example, the root hash of a **Merkle tree** over a batch of events, or a hash of a **snapshot** file in the cloud. Each commit is **one** L2 transaction per batch (or per milestone we agree on with you), not one transaction per line item. The contract will emit **events** (log lines that indexers and explorers read) so that you, your partners, or the public can see **when** a new batch was sealed and **link** that seal to the off-line data we publish for you.
-
-For **optional** campaigns—limited art tied to a vintage or a route—we can deploy a separate **ERC-721**-style **NFT** contract in Solidity to mint **collectibles** on Base, with **metadata** that points to A.I.-generated or generative art and, where appropriate, back to the same **commitment** or bottle identifier. We can encode **royalties and allowlists** in the contract layer so you keep control of how tokens are used in marketplaces. None of this replaces the need for a sound legal and brand policy, but we can give you a **clean technical** story: the chain holds **hashes, pointers, and ownership**; you hold **narrative and law**.
+**We want to be clear:** we do *not* need to publish every field-level detail on-chain. The authoritative ledger stays in the WineLedger service and durable storage. Cardano is the public, timestamped, independently verifiable layer that proves “this snapshot existed, then.”
 
 ---
 
-## Phase B — The plan: production on AWS and live anchoring to Base
+## How we use Cardano assets and policies (native scripts + CIPs)
 
-**Our goal in Phase B** is to run WineLedger as a **private, professionally operated** system in the cloud, and connect it to **Base** with **our** custom Solidity contracts so that integrity is not only “inside our server” but can be **checked from outside** using public tools and standard wallets. **Brian Axel Martinez and Gabriel Cruz Chavez** will lead execution of **Phases B and C** as a coordinated team.
+Cardano gives us two complementary routes that map cleanly onto wine provenance:
+
+### Route A — Collectible / campaign NFTs (CIP-25, native scripts)
+
+For limited campaigns (a vintage release, a route, a tasting event), we mint NFTs using **Cardano native scripts** (no smart contracts) with **CIP-25** metadata for marketplace compatibility. This is deliberately simple and economical:
+
+- A **minting policy** is a small script that can require a signature and can be **time-locked** (expires after a chosen slot).
+- We can mint **multiple NFTs in one transaction**.
+- Metadata is attached under label **721** following the CIP-25 structure wallets and marketplaces expect.
+
+This is the “collectible layer”: art plus a trustworthy pointer to the WineLedger narrative.
+
+### Route B — Long-lived bottle / batch identity (CIP-68 + optional Hydra)
+
+For operational provenance (the living identity of a bottle or batch that changes over time), we use **CIP-68**: a stable reference asset plus an updatable “standard” representation that can carry structured state.
+
+When update frequency is high (logistics scans, sensor-style updates), we can scale by running updates through a **Cardano Hydra head** (Layer-2 state channel), then settling to L1 at agreed milestones. The result is a credible story for both engineers and stakeholders: frequent low-cost updates when needed, and periodic public settlement for audit.
+
+---
+
+## Phase B — The plan: production on AWS and live anchoring to Cardano
+
+**Our goal in Phase B** is to run WineLedger as a **private, professionally operated** system in the cloud, and connect it to **Cardano** so that integrity is not only “inside our server” but can be **checked from outside** using public tools and standard wallets/explorers. **Brian Axel Martinez and Gabriel Cruz Chavez** will lead execution of **Phases B and C** as a coordinated team.
 
 **What we will deliver in Phase B**
 
 - **Hosting:** We will run the FastAPI app on **Amazon Web Services** inside a **VPC** (isolated network). We will put the API behind a **load balancer** with **TLS**; we will support **WebSockets** end-to-end for live demos. We will set up autoscaling and health checks so the service stays stable when traffic spikes (for example, an event or harvest season).
 - **Data path:** We will keep the existing JSON ledger (or a managed database) as the **operational** source of truth; we will use **S3** (or equivalent object storage) for **exports**, **snapshots**, and large **geo** artifacts. We will put **secrets** (API keys, deploy keys) in a **secret manager**, not in source code.
-- **On-chain path:** We will run a **relayer** process (a small, audited service) that **only** our deployment can use to post **Merkle roots** or file hashes to our **provenance** Solidity contract on **Base** on a **fixed schedule** or at **business milestones** (for example, “lot bottled,” “pallet shipped”).
+- **On-chain path:** We will run a **transaction builder + submitter** service (kept isolated from the public internet) that signs and submits Cardano transactions for anchoring. In Phase B this focuses on the operational identity path (CIP-68-shaped state) and on publishing **hash-linked snapshot commitments** that independent parties can verify against exported data.
 - **Security:** We will use **least-privilege** access for people and for machines, **MFA** for operations, a **WAF** in front of public endpoints, **encryption at rest and in transit**, **centralized logging** and **audit** trails, and we will publish a **responsible disclosure** path before go-live so security researchers and partners can report issues in a **coordinated** way.
-- **Outcome we are aiming for:** you can **use** the product every day, **back it up and restore** it, and **point** to a **Base** address where independent parties verify that the batches we publish for you match on-chain commitments.
+- **Outcome we are aiming for:** you can **use** the product every day, **back it up and restore** it, and **point** to Cardano transactions/assets where independent parties verify that the batches we publish for you match on-chain commitments.
 
 ---
 
 ## Phase C — Durable media, A.I. imagery, NFTs, and live generative video
 
-**Our goal in Phase C** is to turn the data and commits from Phase B into a **full creative and collectible layer** while keeping the rule the same: the **detailed** ledger and files stay off-chain, and **Base** holds **verifiability and optional ownership**. This phase is **joint delivery** by **Brian Axel Martinez and Gabriel Cruz Chavez**, building on the operational foundation from Phase B.
+**Our goal in Phase C** is to turn the data and anchors from Phase B into a **full creative and collectible layer** while keeping the rule the same: the **detailed** ledger and files stay off-chain, and **Cardano** holds **verifiability and optional ownership**. This phase is **joint delivery** by **Brian Axel Martinez and Gabriel Cruz Chavez**, building on the operational foundation from Phase B.
 
 **What we will deliver in Phase C**
 
 - **Durable and shareable data tier:** We will set up long-lived storage for **versioned** geo data, **ledger snapshots**, and A.I. outputs; we are already planning the same abstractions in the codebase for a national or institutional **data** tier, and in Phase C we will implement that concretely on **S3**-class storage with lifecycle and access policies you control.
-- **A.I.-assisted still imagery:** We will run a **dedicated** inference pipeline (isolated from the core API) to generate label art, campaign stills, or “vintage” images **driven by** or **consistent with** your real milestone data. We will store each asset with a **content hash**; we will make **metadata** reference the **batch or product** and, when it applies, the **Merkle root** or anchor already on **Base**. We will work with you on **legal and brand** rules for licensing, A.I. disclosure where required, and your ownership of the **brand** itself.
-- **NFT program (on Base, via our Solidity):** if you want a **collectible** program, we will use the same L2 for **minting** so fees stay low, with **clear** links between **token**, **art**, and the **provenance** commitment. We will keep the **on-chain** part small; we will point the **art file** with a **URI** (for example **IPFS** or private storage, depending on your policy).
+- **A.I.-assisted still imagery:** We will run a **dedicated** inference pipeline (isolated from the core API) to generate label art, campaign stills, or “vintage” images **driven by** or **consistent with** your real milestone data. We will store each asset with a **content hash**; we will make metadata reference the **batch or product** and, when it applies, the **Cardano anchor** for the corresponding snapshot. We will work with you on **legal and brand** rules for licensing, A.I. disclosure where required, and your ownership of the **brand** itself.
+- **NFT program (on Cardano, native scripts + CIP-25):** if you want a **collectible** program, we mint under a time-locked, signature-based native policy (simple, auditable) with **CIP-25** metadata for marketplace compatibility. We keep the on-chain footprint small; we point the art file with a **URI** (for example **IPFS** or private storage, depending on your policy).
 - **Live generative video:** We will use the **same** event stream that already feeds **p5.js** in the browser and scale it to **venue** use: long-form generative **motion** for tasting rooms and retail **screens**, with **WebSockets** for in-browser real-time, and, where you need it, **GPU-backed** headless **encoding** to **HLS** or **WebRTC** for multiple displays. The **WineLedger** API will stay the **single** source of truth, and we will keep heavy work **isolated** so live traffic never chokes the ledger.
 
 ---
 
 ## How we see the project as a whole
 
-We are telling **one** story in three layers. The **first layer** is the **data and the chain of blocks** the application runs today: events, hashes, persistence, and validation. The **second layer** is **trust at scale**: the same story **anchored** to **Base** with **our** Solidity contracts, deployed from **AWS**, with the security and operations we described above. The **third layer** is **culture and memory**: A.I. art, **NFTs** that mean something because they point to that history, and **generative video** that makes the supply chain *felt* in a room full of people. We are not asking you to bet on a single magic word like “blockchain”; we want you to see **what we have built**, **what we will do next**, and **how** each piece earns its place in the **plain language** of wine, proof, and experience.
+We are telling **one** story in three layers. The **first layer** is the **data and the chain of blocks** the application runs today: events, hashes, persistence, and validation. The **second layer** is **trust at scale**: the same story **anchored** to **Cardano**, deployed from **AWS**, with the security and operations we described above. The **third layer** is **culture and memory**: A.I. art, **NFTs** that mean something because they point to that history, and **generative video** that makes the supply chain *felt* in a room full of people. We are not asking you to bet on a single magic word like “blockchain”; we want you to see **what we have built**, **what we will do next**, and **how** each piece earns its place in the **plain language** of wine, proof, and experience.
 
 ---
 

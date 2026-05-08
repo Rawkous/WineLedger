@@ -70,7 +70,7 @@ function loadStoredTheme() {
   } catch {
     /* ignore */
   }
-  setTheme("dark");
+  setTheme("light");
 }
 
 function closeMenu() {

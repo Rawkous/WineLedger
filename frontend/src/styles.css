@@ -518,16 +518,6 @@ a.top-menu__link {
   box-sizing: border-box;
 }
 
-.top-menu__row {
-  padding: 0.55rem 0.8rem 0.7rem;
-  margin-top: 0.2rem;
-  border-top: 1px solid var(--hairline);
-}
-
-.top-menu__row--theme {
-  padding-bottom: 0.55rem;
-}
-
 .top-menu__label {
   display: block;
   font-size: 0.6875rem;
@@ -1385,6 +1375,17 @@ a.top-menu__link {
   font-size: 0.95rem;
   color: var(--mist-dim);
   line-height: 1.6;
+}
+
+.app-dialog__body--tight {
+  margin-bottom: 0.85rem;
+}
+
+.settings-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  margin: 0 0 1.25rem;
 }
 
 .app-dialog__body code,

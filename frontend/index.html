@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta id="theme-color-meta" name="theme-color" content="#140c08" />
+    <meta id="theme-color-meta" name="theme-color" content="#f5efe2" />
     <meta
       name="description"
       content="WineLedger — supply chain events on a living ledger, rendered as generative art."
@@ -96,39 +96,6 @@
                 <a href="/wine-journey.html" class="top-menu__item top-menu__link" role="menuitem">
                   Wine journey (learn)
                 </a>
-                <div class="top-menu__row" role="none">
-                  <span class="top-menu__label" id="label-language">Language</span>
-                  <select
-                    id="lang-select"
-                    class="top-menu__select"
-                    aria-labelledby="label-language"
-                  >
-                    <option value="en" selected>English</option>
-                    <option value="es" disabled>Español (soon)</option>
-                    <option value="fr" disabled>Français (soon)</option>
-                  </select>
-                </div>
-                <div class="top-menu__row top-menu__row--theme" role="none">
-                  <span class="top-menu__label" id="label-theme">Appearance</span>
-                  <div class="theme-toggle" role="group" aria-labelledby="label-theme">
-                    <button
-                      type="button"
-                      class="theme-toggle__btn"
-                      data-theme-choice="dark"
-                      aria-pressed="true"
-                    >
-                      Cellar
-                    </button>
-                    <button
-                      type="button"
-                      class="theme-toggle__btn"
-                      data-theme-choice="light"
-                      aria-pressed="false"
-                    >
-                      Tasting
-                    </button>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -138,11 +105,42 @@
       <dialog id="dlg-settings" class="app-dialog">
         <div class="app-dialog__inner">
           <h2 class="app-dialog__title">Page settings</h2>
-          <p class="app-dialog__body">
-            Preferences for layout, stream behavior, and notifications will be added here in a future
-            release. For now, use <em>Appearance</em> in the menu to switch between the
-            <strong>Cellar</strong> and <strong>Tasting</strong> palettes.
+          <p class="app-dialog__body app-dialog__body--tight">
+            Language applies here. <strong>Appearance</strong> is saved for this site and matches the
+            <a href="/wine-journey.html">Wine journey</a> page (Cellar vs. Tasting room). More options for
+            layout, stream behavior, and notifications may arrive in a future release.
           </p>
+          <div class="settings-fields">
+            <div class="settings-field">
+              <label class="top-menu__label" id="label-language" for="lang-select">Language</label>
+              <select id="lang-select" class="top-menu__select">
+                <option value="en" selected>English</option>
+                <option value="es" disabled>Español (soon)</option>
+                <option value="fr" disabled>Français (soon)</option>
+              </select>
+            </div>
+            <div class="settings-field">
+              <span class="top-menu__label" id="label-theme">Appearance</span>
+              <div class="theme-toggle" role="group" aria-labelledby="label-theme">
+                <button
+                  type="button"
+                  class="theme-toggle__btn"
+                  data-theme-choice="dark"
+                  aria-pressed="false"
+                >
+                  Cellar
+                </button>
+                <button
+                  type="button"
+                  class="theme-toggle__btn"
+                  data-theme-choice="light"
+                  aria-pressed="true"
+                >
+                  Tasting
+                </button>
+              </div>
+            </div>
+          </div>
           <form method="dialog" class="app-dialog__actions">
             <button type="submit" class="btn btn--primary">Close</button>
           </form>
@@ -168,9 +166,10 @@
           <h2 class="app-dialog__title">Project info</h2>
           <p class="app-dialog__body">
             REST API exposes <code>/chain</code> and <code>/simulate-once</code>; live updates stream over
-            WebSocket <code>/ws</code>. The canvas is driven by Hydra from parameters derived from each
-            block. The <a href="/wine-journey.html">Wine journey</a> page connects the simulated stages to
-            real-world wine production.
+            WebSocket <code>/ws</code>. The canvas uses <strong>Hydra Synth</strong> (live-coding visuals) —
+            not Cardano Hydra. The <a href="/wine-journey.html">Wine journey</a> page connects stages to
+            real production. For how <strong>Cardano</strong> (e.g. CIP-68 NFTs + L2 Hydra heads) could back
+            the same supply-chain story, see <strong>Cardano platform alignment</strong> in the repo README.
           </p>
           <form method="dialog" class="app-dialog__actions">
             <button type="submit" class="btn btn--primary">Close</button>

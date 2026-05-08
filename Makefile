@@ -9,7 +9,8 @@ PORT ?= 8000
 #   make PYTEST_DISABLE_PLUGIN_AUTOLOAD=0 test
 PYTEST_DISABLE_PLUGIN_AUTOLOAD ?= 1
 
-.PHONY: help install install-backend install-frontend test dev-backend dev-frontend
+.PHONY: help install install-backend install-frontend test dev-backend dev-frontend \
+        cardano-status cardano-dryrun cardano-submissions
 
 help:
 	@echo WineLedger targets:
@@ -19,6 +20,9 @@ help:
 	@echo   make test              - pytest
 	@echo   make dev-backend       - uvicorn with reload on port $(PORT)
 	@echo   make dev-frontend      - Vite dev server \(proxies to $(PORT)\)
+	@echo   make cardano-status    - GET /cardano/status from the running backend
+	@echo   make cardano-dryrun    - POST /cardano/dryrun to preview the next datum
+	@echo   make cardano-submissions - GET /cardano/submissions
 	@echo ""
 	@echo Run backend and frontend in two terminals.
 
@@ -38,3 +42,12 @@ dev-backend:
 
 dev-frontend:
 	cd frontend && npm run dev
+
+cardano-status:
+	curl -fsS http://127.0.0.1:$(PORT)/cardano/status
+
+cardano-dryrun:
+	curl -fsS -X POST http://127.0.0.1:$(PORT)/cardano/dryrun
+
+cardano-submissions:
+	curl -fsS http://127.0.0.1:$(PORT)/cardano/submissions

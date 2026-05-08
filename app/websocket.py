@@ -7,11 +7,14 @@ from typing import Any, List
 
 from fastapi import APIRouter, Request, WebSocket, WebSocketDisconnect
 
+from typing import Optional
+
 from .blockchain import Blockchain
 from .models import Block
 from .mapping import event_to_visual_params
 from .schemas import (
     BlockPayloadSchema,
+    CardanoSubmissionSchema,
     WebSocketBlockMessageSchema,
     WebSocketChainSnapshotSchema,
     block_to_schema,
@@ -55,10 +58,18 @@ def chain_snapshot_payload(blockchain: Blockchain) -> dict:
     ).model_dump(mode="json")
 
 
-def block_message_payload(block: Block) -> dict:
+def block_message_payload(
+    block: Block,
+    *,
+    cardano: Optional[CardanoSubmissionSchema] = None,
+) -> dict:
     vis = event_to_visual_params(block.event)
     return WebSocketBlockMessageSchema(
-        payload=BlockPayloadSchema(block=block_to_schema(block), visual=vis),
+        payload=BlockPayloadSchema(
+            block=block_to_schema(block),
+            visual=vis,
+            cardano=cardano,
+        ),
     ).model_dump(mode="json")
 
 

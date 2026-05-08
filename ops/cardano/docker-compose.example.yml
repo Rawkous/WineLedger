@@ -1,0 +1,104 @@
+## Reference Docker Compose layout for the Cardano + Hydra integration.
+##
+## Copy to docker-compose.yml, set the secrets/volumes you actually use,
+## and run with: docker compose up
+##
+## Image tags, socket paths, and CLI flags evolve across Hydra and
+## cardano-node releases. Always cross-check against the current Hydra
+## docs before deploying.
+
+services:
+  cardano-node:
+    image: ghcr.io/intersectmbo/cardano-node:9.2.1
+    container_name: wineledger-cardano-node
+    command:
+      - run
+      - --config
+      - /config/config.json
+      - --topology
+      - /config/topology.json
+      - --database-path
+      - /data/db
+      - --socket-path
+      - /ipc/node.socket
+      - --port
+      - "3001"
+    environment:
+      NETWORK: preview
+    volumes:
+      - ./cardano-config:/config:ro
+      - cardano-db:/data
+      - node-ipc:/ipc
+    restart: unless-stopped
+
+  hydra-node:
+    image: ghcr.io/cardano-scaling/hydra-node:0.18.1
+    container_name: wineledger-hydra-node
+    depends_on:
+      - cardano-node
+    command:
+      - --node-id
+      - wineledger
+      - --api-host
+      - 0.0.0.0
+      - --api-port
+      - "4001"
+      - --hydra-signing-key
+      - /keys/hydra.sk
+      - --cardano-signing-key
+      - /keys/cardano.sk
+      - --node-socket
+      - /ipc/node.socket
+      - --testnet-magic
+      - "2"
+      - --persistence-dir
+      - /state
+    ports:
+      - "4001:4001"
+    volumes:
+      - ./hydra-keys:/keys:ro
+      - hydra-state:/state
+      - node-ipc:/ipc
+    restart: unless-stopped
+
+  ## Tiny HTTP service (Lucid / Mesh / cardano-cli wrapper) that takes
+  ## the WineLedger event datum and returns a signed CBOR-hex tx.
+  ## Anything matching the SidecarTxBuilder contract works; see
+  ## app/cardano/tx_builder.py for the request/response shape.
+  tx-builder:
+    image: ghcr.io/your-org/wineledger-tx-builder:latest
+    container_name: wineledger-tx-builder
+    depends_on:
+      - cardano-node
+    environment:
+      CARDANO_NETWORK: preview
+      CARDANO_NODE_SOCKET: /ipc/node.socket
+      WINELEDGER_REF_TOKEN: WINELEDGER-BATCH
+    ports:
+      - "4080:4080"
+    volumes:
+      - ./tx-builder-keys:/keys:ro
+      - node-ipc:/ipc
+    restart: unless-stopped
+
+  wineledger:
+    build: ../../
+    container_name: wineledger-app
+    depends_on:
+      - hydra-node
+      - tx-builder
+    environment:
+      WINELEDGER_HYDRA_MODE: live
+      WINELEDGER_HYDRA_URL: http://hydra-node:4001
+      WINELEDGER_HYDRA_HEAD_ID: wineledger-demo
+      WINELEDGER_CARDANO_TX_BUILDER_URL: http://tx-builder:4080
+      WINELEDGER_CARDANO_NETWORK: preview
+      WINELEDGER_CARDANO_REF_TOKEN: WINELEDGER-BATCH
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+volumes:
+  cardano-db:
+  hydra-state:
+  node-ipc:

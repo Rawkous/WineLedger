@@ -41,11 +41,26 @@ class VisualParamsSchema(BaseModel):
     label: str
 
 
+class CardanoSubmissionSchema(BaseModel):
+    """Optional Cardano/Hydra submission record attached to a block payload."""
+
+    event_id: str
+    block_index: int
+    block_hash: str
+    tx_id: str
+    status: str
+    mode: str
+    head_id: str | None = None
+    error: str | None = None
+    submitted_at: str | None = None
+
+
 class BlockPayloadSchema(BaseModel):
     """Single block plus derived visuals — WebSocket and REST detail views."""
 
     block: BlockSchema
     visual: VisualParamsSchema
+    cardano: CardanoSubmissionSchema | None = None
 
 
 class SimulateOnceResponseSchema(BaseModel):
