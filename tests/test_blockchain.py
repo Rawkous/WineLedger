@@ -1,7 +1,7 @@
 from app.blockchain import Blockchain
 from app.models import SupplyChainEvent
 from app.schemas import block_to_schema, supply_chain_event_to_schema
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def test_genesis_and_add_block():
@@ -92,3 +92,25 @@ def test_chain_invalid_if_genesis_tampered():
     bc = _chain_with_harvest()
     bc.chain[0].event.metadata["forged"] = True
     assert not bc.is_valid()
+
+
+def test_schema_labels_naive_timestamps_as_utc():
+    bc = Blockchain()
+    ev = SupplyChainEvent(
+        event_id="legacy",
+        event_type="HARVEST",
+        timestamp=datetime(2026, 10, 31, 4, 40),
+        location={"lat": 38.3, "lon": -122.3},
+        metadata={},
+    )
+    block = bc.add_block(ev)
+    block.timestamp = datetime(2026, 10, 31, 4, 41)
+    d = block_to_schema(block).model_dump(mode="json")
+    assert d["timestamp"] == "2026-10-31T04:41:00Z"
+    assert d["event"]["timestamp"] == "2026-10-31T04:40:00Z"
+
+
+def test_new_blocks_have_utc_timestamps():
+    bc = _chain_with_harvest()
+    assert bc.chain[0].timestamp.utcoffset() == timedelta(0)
+    assert bc.chain[1].timestamp.utcoffset() == timedelta(0)

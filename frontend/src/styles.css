@@ -1734,6 +1734,42 @@ code {
   border-color: var(--hairline-strong);
 }
 
+[data-theme="light"] .event-badge--harvest {
+  color: #3b5a2a;
+  background: rgba(143, 179, 122, 0.22);
+  border-color: rgba(92, 130, 70, 0.45);
+}
+
+[data-theme="light"] .event-badge--fermentation {
+  color: #6a4c0f;
+  background: rgba(216, 181, 106, 0.26);
+  border-color: rgba(160, 125, 50, 0.45);
+}
+
+[data-theme="light"] .event-badge--barrel {
+  color: #6d3c1f;
+  background: rgba(192, 135, 98, 0.22);
+  border-color: rgba(150, 95, 60, 0.45);
+}
+
+[data-theme="light"] .event-badge--bottling {
+  color: #234f6d;
+  background: rgba(126, 170, 198, 0.22);
+  border-color: rgba(80, 125, 155, 0.45);
+}
+
+[data-theme="light"] .event-badge--transport {
+  color: #4b3570;
+  background: rgba(164, 143, 196, 0.22);
+  border-color: rgba(115, 92, 150, 0.45);
+}
+
+[data-theme="light"] .event-badge--retail {
+  color: #7a2733;
+  background: rgba(217, 122, 133, 0.2);
+  border-color: rgba(170, 70, 85, 0.45);
+}
+
 [data-theme="light"] .sim-pace {
   background: rgba(255, 252, 244, 0.65);
   border-color: var(--hairline);

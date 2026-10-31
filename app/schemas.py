@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Literal
 
 from pydantic import BaseModel, Field
@@ -84,11 +84,17 @@ class WebSocketChainSnapshotSchema(BaseModel):
     blocks: List[BlockPayloadSchema]
 
 
+def _as_utc(dt: datetime) -> datetime:
+    # Chains written before timestamps were timezone-aware hold naive UTC values;
+    # label them so clients don't read them as local time.
+    return dt if dt.tzinfo is not None else dt.replace(tzinfo=timezone.utc)
+
+
 def supply_chain_event_to_schema(ev: SupplyChainEvent) -> SupplyChainEventSchema:
     return SupplyChainEventSchema(
         event_id=ev.event_id,
         event_type=ev.event_type,
-        timestamp=ev.timestamp,
+        timestamp=_as_utc(ev.timestamp),
         location=LocationSchema(lat=ev.location["lat"], lon=ev.location["lon"]),
         metadata=dict(ev.metadata),
     )
@@ -97,7 +103,7 @@ def supply_chain_event_to_schema(ev: SupplyChainEvent) -> SupplyChainEventSchema
 def block_to_schema(block: Block) -> BlockSchema:
     return BlockSchema(
         index=block.index,
-        timestamp=block.timestamp,
+        timestamp=_as_utc(block.timestamp),
         event=supply_chain_event_to_schema(block.event),
         previous_hash=block.previous_hash,
         hash=block.hash,

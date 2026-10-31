@@ -1,7 +1,7 @@
 # Supply chain simulator 
 import uuid
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List
 from .models import SupplyChainEvent
 
@@ -18,7 +18,7 @@ BASE_LOCATION = {"lat": 38.2975, "lon": -122.2869}  # Napa-ish
 
 def simulate_supply_chain(start_time: datetime | None = None) -> List[SupplyChainEvent]:
     if start_time is None:
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
     events: List[SupplyChainEvent] = []
     current_time = start_time

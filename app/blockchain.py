@@ -1,7 +1,7 @@
 # Blockchain logic
 import hashlib
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List
 from .models import Block, SupplyChainEvent
 
@@ -57,13 +57,13 @@ class Blockchain:
         genesis_event = SupplyChainEvent(
             event_id="GENESIS",
             event_type="GENESIS",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             location={"lat": 0.0, "lon": 0.0},
             metadata={}
         )
         genesis_block = Block(
             index=0,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             event=genesis_event,
             previous_hash="0",
             hash="",
@@ -78,7 +78,7 @@ class Blockchain:
         previous_block = self.chain[-1]
         new_block = Block(
             index=previous_block.index + 1,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             event=event,
             previous_hash=previous_block.hash,
             hash="",

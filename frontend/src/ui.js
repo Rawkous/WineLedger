@@ -16,9 +16,12 @@ function badgeClassForEventType(eventType) {
   return EVENT_BADGE_CLASS[eventType] || "event-badge--default";
 }
 
+// Backend times are UTC; older payloads may omit the zone, which Date would read as local time.
+const HAS_ZONE = /(Z|[+-]\d{2}:?\d{2})$/i;
+
 function formatWhen(iso) {
   if (!iso) return "";
-  const d = new Date(iso);
+  const d = new Date(HAS_ZONE.test(iso) ? iso : `${iso}Z`);
   if (Number.isNaN(d.getTime())) return "";
   return d.toLocaleString(undefined, {
     dateStyle: "medium",
