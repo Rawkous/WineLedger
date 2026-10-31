@@ -54,3 +54,41 @@ def test_supply_chain_event_schema():
     )
     s = supply_chain_event_to_schema(ev)
     assert s.model_dump(mode="json")["metadata"]["a"] == 1
+
+
+def _chain_with_harvest():
+    bc = Blockchain()
+    bc.add_block(
+        SupplyChainEvent(
+            event_id="e1",
+            event_type="HARVEST",
+            timestamp=datetime.utcnow(),
+            location={"lat": 38.3, "lon": -122.3},
+            metadata={"temperature": 12.0, "batch_id": "B1"},
+        )
+    )
+    return bc
+
+
+def test_chain_invalid_if_event_metadata_tampered():
+    bc = _chain_with_harvest()
+    bc.chain[1].event.metadata["temperature"] = 30.0
+    assert not bc.is_valid()
+
+
+def test_chain_invalid_if_event_type_tampered():
+    bc = _chain_with_harvest()
+    bc.chain[1].event.event_type = "RETAIL"
+    assert not bc.is_valid()
+
+
+def test_chain_invalid_if_location_tampered():
+    bc = _chain_with_harvest()
+    bc.chain[1].event.location["lat"] = 40.0
+    assert not bc.is_valid()
+
+
+def test_chain_invalid_if_genesis_tampered():
+    bc = _chain_with_harvest()
+    bc.chain[0].event.metadata["forged"] = True
+    assert not bc.is_valid()

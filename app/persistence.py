@@ -3,12 +3,18 @@
 from __future__ import annotations
 
 import json
+import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
-from .blockchain import Blockchain
+from .blockchain import HASH_VERSION, Blockchain, calculate_block_hash, chain_is_valid, legacy_block_hash
 from .models import Block, SupplyChainEvent
+
+_LOG = logging.getLogger("wineledger.persistence")
+
+# File format version tracks the block hash scheme: 1 = legacy partial hash, 2 = full-content hash.
+CHAIN_FILE_VERSION = HASH_VERSION
 
 
 def _dt_from_str(s: str) -> datetime:
@@ -62,7 +68,7 @@ def _record_to_event(d: Dict[str, Any]) -> SupplyChainEvent:
 def save_chain(path: Path, chain: List[Block]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
-        "version": 1,
+        "version": CHAIN_FILE_VERSION,
         "blocks": [_block_to_record(b) for b in chain],
     }
     text = json.dumps(payload, indent=2, sort_keys=False)
@@ -71,7 +77,7 @@ def save_chain(path: Path, chain: List[Block]) -> None:
     tmp.replace(path)
 
 
-def load_chain(path: Path) -> Optional[List[Block]]:
+def _load_chain_file(path: Path) -> Optional[Tuple[int, List[Block]]]:
     if not path.exists():
         return None
     raw = path.read_text(encoding="utf-8").strip()
@@ -79,7 +85,20 @@ def load_chain(path: Path) -> Optional[List[Block]]:
         return None
     data = json.loads(raw)
     blocks = [_record_to_block(b) for b in data["blocks"]]
-    return blocks
+    return int(data.get("version", 1)), blocks
+
+
+def load_chain(path: Path) -> Optional[List[Block]]:
+    loaded = _load_chain_file(path)
+    return None if loaded is None else loaded[1]
+
+
+def migrate_legacy_chain(blocks: List[Block]) -> None:
+    """Re-hash a verified v1 chain in place under the current hash scheme."""
+    for i, block in enumerate(blocks):
+        if i > 0:
+            block.previous_hash = blocks[i - 1].hash
+        block.hash = calculate_block_hash(block)
 
 
 class PersistentBlockchain(Blockchain):
@@ -87,9 +106,19 @@ class PersistentBlockchain(Blockchain):
 
     def __init__(self, path: Path) -> None:
         self._path = path
-        loaded = load_chain(path)
+        loaded = _load_chain_file(path)
         if loaded is not None:
-            self.chain = loaded
+            version, self.chain = loaded
+            if version < CHAIN_FILE_VERSION:
+                # Verify under the scheme the file was written with before upgrading it.
+                if not chain_is_valid(self.chain, legacy_block_hash):
+                    raise ValueError(f"Invalid or corrupt chain file: {path}")
+                migrate_legacy_chain(self.chain)
+                self._persist()
+                _LOG.warning(
+                    "Migrated %s from chain format v%d to v%d; block hashes changed",
+                    path, version, CHAIN_FILE_VERSION,
+                )
             if not self.is_valid():
                 raise ValueError(f"Invalid or corrupt chain file: {path}")
         else:
